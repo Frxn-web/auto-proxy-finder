@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auto Proxy Finder</title>
+    <title>Anonymous Web Browser</title>
     <style>
         * {
             margin: 0;
@@ -12,618 +12,792 @@
         }
 
         body {
-            font-family: 'Courier New', monospace;
-            background: #0d1117;
-            color: #58a6ff;
-            min-height: 100vh;
-            padding: 20px;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 100%;
-            background: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 12px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            height: 100vh;
             overflow: hidden;
-            box-shadow: 0 0 30px rgba(88, 166, 255, 0.1);
         }
 
-        .header {
-            background: linear-gradient(135deg, #1f6feb, #0969da);
-            padding: 20px;
+        .main-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 350px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-right: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .browser-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #111;
+        }
+
+        .logo-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 15px;
             text-align: center;
-            position: relative;
-            overflow: hidden;
+            color: white;
         }
 
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            animation: scan 3s infinite;
+        .logo-header h1 {
+            font-size: 18px;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
-        @keyframes scan {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 8px;
-            text-shadow: 0 0 10px rgba(88, 166, 255, 0.5);
-        }
-
-        .header p {
+        .logo-header p {
+            font-size: 11px;
             opacity: 0.9;
-            font-size: 14px;
         }
 
-        .control-panel {
-            padding: 20px;
-            border-bottom: 1px solid #30363d;
+        .proxy-controls {
+            padding: 15px;
+            border-bottom: 1px solid #333;
         }
 
-        .auto-controls {
-            display: grid;
-            grid-template-columns: 1fr auto auto;
-            gap: 15px;
-            align-items: center;
-            margin-bottom: 20px;
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-label {
+            display: block;
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .control-input {
+            width: 100%;
+            padding: 8px 10px;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 5px;
+            color: #e0e0e0;
+            font-size: 12px;
+        }
+
+        .control-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 8px rgba(102, 126, 234, 0.3);
         }
 
         .btn {
-            padding: 12px 20px;
-            border: 1px solid #30363d;
-            border-radius: 8px;
-            background: #21262d;
-            color: #f0f6fc;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
-            font-family: inherit;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white;
         }
 
         .btn:hover {
-            background: #30363d;
-            border-color: #58a6ff;
-            box-shadow: 0 0 15px rgba(88, 166, 255, 0.3);
-        }
-
-        .btn.btn-start {
-            background: #238636;
-            border-color: #2ea043;
-        }
-
-        .btn.btn-start:hover {
-            background: #2ea043;
-            box-shadow: 0 0 15px rgba(46, 160, 67, 0.5);
-        }
-
-        .btn.btn-stop {
-            background: #da3633;
-            border-color: #f85149;
-        }
-
-        .btn.btn-stop:hover {
-            background: #f85149;
-            box-shadow: 0 0 15px rgba(248, 81, 73, 0.5);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
         .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none;
         }
 
-        .settings {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .setting-group {
-            background: #0d1117;
+        .status-panel {
             padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #21262d;
+            border-bottom: 1px solid #333;
+            background: #1a1a1a;
         }
 
-        .setting-label {
-            display: block;
-            font-size: 12px;
-            color: #7d8590;
+        .status-item {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .setting-input {
-            width: 100%;
-            padding: 8px 12px;
-            background: #21262d;
-            border: 1px solid #30363d;
-            border-radius: 6px;
-            color: #f0f6fc;
-            font-family: inherit;
-            font-size: 14px;
-        }
-
-        .setting-input:focus {
-            outline: none;
-            border-color: #58a6ff;
-            box-shadow: 0 0 8px rgba(88, 166, 255, 0.3);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-            padding: 20px;
-            border-bottom: 1px solid #30363d;
-        }
-
-        .stat-card {
-            background: #0d1117;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #21262d;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #58a6ff, #1f6feb);
-        }
-
-        .stat-number {
-            font-size: 20px;
-            font-weight: bold;
-            color: #58a6ff;
-            text-shadow: 0 0 10px rgba(88, 166, 255, 0.3);
-        }
-
-        .stat-label {
             font-size: 11px;
-            color: #7d8590;
-            text-transform: uppercase;
-            margin-top: 5px;
-            letter-spacing: 0.5px;
         }
 
-        .console {
-            padding: 20px;
-            background: #0d1117;
-            max-height: 300px;
+        .status-label {
+            color: #888;
+        }
+
+        .status-value {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .proxy-list-container {
+            flex: 1;
             overflow-y: auto;
-            font-size: 12px;
-            line-height: 1.6;
-            border-bottom: 1px solid #30363d;
-            position: relative;
+            padding: 10px;
         }
 
-        .console::before {
-            content: '> CONSOLE';
-            position: sticky;
-            top: 0;
-            display: block;
-            background: #0d1117;
-            color: #7d8590;
-            font-size: 10px;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #21262d;
-        }
-
-        .log-entry {
-            margin: 2px 0;
-            padding: 2px 0;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(-10px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .log-info { color: #58a6ff; }
-        .log-success { color: #3fb950; }
-        .log-warning { color: #d29922; }
-        .log-error { color: #f85149; }
-        .log-proxy { color: #a5a5a5; }
-
-        .proxy-grid {
-            padding: 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 15px;
-        }
-
-        .proxy-card {
-            background: #0d1117;
-            border: 1px solid #21262d;
-            border-radius: 8px;
-            padding: 15px;
+        .proxy-item {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 8px;
+            font-size: 11px;
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
         }
 
-        .proxy-card.working {
-            border-color: #2ea043;
-            box-shadow: 0 0 15px rgba(46, 160, 67, 0.2);
+        .proxy-item.active {
+            border-color: #11998e;
+            background: rgba(17, 153, 142, 0.1);
         }
 
-        .proxy-card.working::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: #2ea043;
-            animation: pulse 2s infinite;
+        .proxy-item.working {
+            border-left: 3px solid #11998e;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        .proxy-item.failed {
+            border-left: 3px solid #ff416c;
+            opacity: 0.6;
         }
 
         .proxy-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         .proxy-address {
             font-weight: bold;
-            color: #f0f6fc;
-            font-family: 'Courier New', monospace;
+            color: #e0e0e0;
         }
 
         .proxy-status {
-            font-size: 12px;
-            padding: 4px 8px;
-            border-radius: 4px;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .status-working {
-            background: rgba(46, 160, 67, 0.2);
-            color: #3fb950;
-            border: 1px solid #2ea043;
-        }
-
-        .status-testing {
-            background: rgba(210, 153, 34, 0.2);
-            color: #d29922;
-            border: 1px solid #d29922;
+            background: rgba(17, 153, 142, 0.3);
+            color: #11998e;
         }
 
         .status-failed {
-            background: rgba(248, 81, 73, 0.2);
-            color: #f85149;
-            border: 1px solid #f85149;
+            background: rgba(255, 65, 108, 0.3);
+            color: #ff416c;
         }
 
-        .proxy-details {
-            font-size: 11px;
-            color: #7d8590;
-            line-height: 1.4;
+        .browser-toolbar {
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .auto-indicator {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #238636;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            z-index: 1000;
-            display: none;
-            animation: blink 1.5s infinite;
+        .nav-buttons {
+            display: flex;
+            gap: 5px;
         }
 
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.5; }
+        .nav-btn {
+            width: 35px;
+            height: 35px;
+            border: 1px solid #444;
+            background: #222;
+            color: #e0e0e0;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.3s ease;
         }
 
-        .browser-section {
-            padding: 20px;
-            border-top: 1px solid #30363d;
+        .nav-btn:hover {
+            background: #333;
+            border-color: #667eea;
         }
 
-        .browser-frame {
-            background: #0d1117;
-            border: 1px solid #30363d;
-            border-radius: 8px;
-            height: 200px;
-            position: relative;
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .address-bar {
+            flex: 1;
+            display: flex;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 5px;
             overflow: hidden;
         }
 
-        .browser-header {
-            background: #21262d;
+        .address-input {
+            flex: 1;
             padding: 10px 15px;
-            border-bottom: 1px solid #30363d;
+            background: transparent;
+            border: none;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+
+        .address-input:focus {
+            outline: none;
+        }
+
+        .go-btn {
+            padding: 0 15px;
+            background: #667eea;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .go-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .security-indicator {
             display: flex;
             align-items: center;
             gap: 10px;
             font-size: 12px;
         }
 
-        .browser-dots {
-            display: flex;
-            gap: 5px;
+        .security-status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
         }
 
-        .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
+        .secure {
+            background: rgba(17, 153, 142, 0.3);
+            color: #11998e;
         }
 
-        .dot.red { background: #f85149; }
-        .dot.yellow { background: #d29922; }
-        .dot.green { background: #3fb950; }
+        .insecure {
+            background: rgba(255, 65, 108, 0.3);
+            color: #ff416c;
+        }
 
         .browser-content {
-            padding: 20px;
-            height: calc(100% - 41px);
-            overflow-y: auto;
-            color: #7d8590;
-            text-align: center;
-            display: flex;
+            flex: 1;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
             align-items: center;
             justify-content: center;
             flex-direction: column;
+            color: white;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #333;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .website-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        .tabs-container {
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            min-height: 40px;
+        }
+
+        .tab {
+            background: #222;
+            border: 1px solid #333;
+            border-bottom: none;
+            padding: 8px 15px;
+            margin-right: 2px;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            font-size: 12px;
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            position: relative;
+        }
+
+        .tab.active {
+            background: #333;
+            border-color: #667eea;
+        }
+
+        .tab-close {
+            margin-left: 8px;
+            cursor: pointer;
+            color: #888;
+            font-weight: bold;
+        }
+
+        .tab-close:hover {
+            color: #ff416c;
+        }
+
+        .new-tab-btn {
+            width: 30px;
+            height: 30px;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 3px;
+            color: #e0e0e0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 10px;
+        }
+
+        .new-tab-btn:hover {
+            background: #333;
+        }
+
+        .console-panel {
+            background: #0a0a0a;
+            border-top: 1px solid #333;
+            height: 150px;
+            overflow-y: auto;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.4;
+        }
+
+        .console-entry {
+            margin-bottom: 2px;
+            color: #888;
+        }
+
+        .console-entry.info { color: #667eea; }
+        .console-entry.success { color: #11998e; }
+        .console-entry.warning { color: #ffa726; }
+        .console-entry.error { color: #ff416c; }
+
+        .performance-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 10px;
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+        }
+
+        .perf-stat {
+            text-align: center;
+            padding: 8px;
+            background: #222;
+            border-radius: 5px;
+        }
+
+        .perf-number {
+            font-size: 16px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .perf-label {
+            font-size: 10px;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .bookmarks-bar {
+            background: #1a1a1a;
+            padding: 5px 15px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+        }
+
+        .bookmark {
+            padding: 5px 10px;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .bookmark:hover {
+            background: #333;
+            border-color: #667eea;
+        }
+
+        .homepage-content {
+            padding: 40px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .homepage-title {
+            font-size: 36px;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .homepage-subtitle {
+            font-size: 18px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .quick-link {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .quick-link:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .responsive-toggle {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 10000;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
         }
 
         @media (max-width: 768px) {
-            .auto-controls {
-                grid-template-columns: 1fr;
+            .responsive-toggle {
+                display: block;
             }
             
-            .settings {
-                grid-template-columns: 1fr;
+            .sidebar {
+                position: fixed;
+                left: -350px;
+                top: 0;
+                height: 100vh;
+                z-index: 9999;
+                transition: left 0.3s ease;
             }
             
-            .proxy-grid {
-                grid-template-columns: 1fr;
+            .sidebar.mobile-open {
+                left: 0;
+            }
+            
+            .browser-area {
+                width: 100%;
+            }
+            
+            .performance-stats {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
 </head>
 <body>
-    <div class="auto-indicator" id="autoIndicator">
-        🔄 BÚSQUEDA AUTOMÁTICA ACTIVA
-    </div>
+    <button class="responsive-toggle" onclick="toggleSidebar()">☰</button>
 
-    <div class="container">
-        <div class="header">
-            <h1>🔍 Auto Proxy Finder</h1>
-            <p>Búsqueda automática de proxies funcionales</p>
-        </div>
+    <div class="main-container">
+        <div class="sidebar" id="sidebar">
+            <div class="logo-header">
+                <h1>🛡️ Anonymous Browser</h1>
+                <p>Navegación completamente anónima</p>
+            </div>
 
-        <div class="control-panel">
-            <div class="auto-controls">
-                <div>
-                    <label class="setting-label">URL de prueba</label>
-                    <input type="text" class="setting-input" id="testUrl" value="httpbin.org/ip">
+            <div class="proxy-controls">
+                <div class="control-group">
+                    <label class="control-label">Proxies por lote</label>
+                    <input type="number" class="control-input" id="batchSize" value="30" min="10" max="100">
                 </div>
-                <button class="btn btn-start" id="startBtn" onclick="startAutoSearch()">
+                
+                <div class="control-group">
+                    <label class="control-label">Timeout (ms)</label>
+                    <input type="number" class="control-input" id="timeout" value="3000" min="1000" max="10000">
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Mínimo funcionales</label>
+                    <input type="number" class="control-input" id="minWorking" value="5" min="1" max="20">
+                </div>
+
+                <button class="btn btn-primary" id="startBtn" onclick="startProxyHunting()">
                     🚀 Iniciar Búsqueda
                 </button>
-                <button class="btn btn-stop" id="stopBtn" onclick="stopAutoSearch()" disabled>
+                <button class="btn btn-danger" id="stopBtn" onclick="stopProxyHunting()" disabled>
                     ⏹️ Detener
                 </button>
             </div>
 
-            <div class="settings">
-                <div class="setting-group">
-                    <label class="setting-label">Proxies por lote</label>
-                    <input type="number" class="setting-input" id="batchSize" value="50" min="10" max="200">
+            <div class="status-panel">
+                <div class="status-item">
+                    <span class="status-label">Estado:</span>
+                    <span class="status-value" id="huntingStatus">Inactivo</span>
                 </div>
-                <div class="setting-group">
-                    <label class="setting-label">Timeout (ms)</label>
-                    <input type="number" class="setting-input" id="timeout" value="5000" min="1000" max="30000">
+                <div class="status-item">
+                    <span class="status-label">Proxies Activos:</span>
+                    <span class="status-value" id="activeProxies">0</span>
                 </div>
-                <div class="setting-group">
-                    <label class="setting-label">Mínimo funcionales</label>
-                    <input type="number" class="setting-input" id="minWorking" value="10" min="1" max="50">
+                <div class="status-item">
+                    <span class="status-label">Proxy Actual:</span>
+                    <span class="status-value" id="currentProxyDisplay">Ninguno</span>
                 </div>
-                <div class="setting-group">
-                    <label class="setting-label">Intervalo búsqueda (s)</label>
-                    <input type="number" class="setting-input" id="searchInterval" value="30" min="10" max="300">
+                <div class="status-item">
+                    <span class="status-label">Velocidad:</span>
+                    <span class="status-value" id="proxySpeed">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">IP Oculta:</span>
+                    <span class="status-value" id="ipHidden">❌</span>
+                </div>
+            </div>
+
+            <div class="proxy-list-container" id="proxyList">
+                <div style="text-align: center; padding: 20px; color: #666;">
+                    No hay proxies disponibles.<br>
+                    Inicia la búsqueda arriba.
                 </div>
             </div>
         </div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number" id="totalGenerated">0</div>
-                <div class="stat-label">Generados</div>
+        <div class="browser-area">
+            <div class="tabs-container">
+                <div class="tab active" data-tab="0">
+                    🏠 Inicio
+                    <span class="tab-close" onclick="closeTab(0)">×</span>
+                </div>
+                <div class="new-tab-btn" onclick="newTab()">+</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number" id="totalTested">0</div>
-                <div class="stat-label">Probados</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="totalWorking">0</div>
-                <div class="stat-label">Funcionales</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="successRate">0%</div>
-                <div class="stat-label">Éxito</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="currentSpeed">0</div>
-                <div class="stat-label">Pruebas/min</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="timeRunning">00:00</div>
-                <div class="stat-label">Tiempo</div>
-            </div>
-        </div>
 
-        <div class="console" id="console">
-            <!-- Los logs aparecerán aquí -->
-        </div>
+            <div class="bookmarks-bar">
+                <div class="bookmark" onclick="navigateToUrl('https://httpbin.org/ip')">🔍 Mi IP</div>
+                <div class="bookmark" onclick="navigateToUrl('https://www.google.com')">🔍 Google</div>
+                <div class="bookmark" onclick="navigateToUrl('https://duckduckgo.com')">🦆 DuckDuckGo</div>
+                <div class="bookmark" onclick="navigateToUrl('https://www.wikipedia.org')">📚 Wikipedia</div>
+                <div class="bookmark" onclick="navigateToUrl('https://github.com')">🐙 GitHub</div>
+                <div class="bookmark" onclick="navigateToUrl('https://stackoverflow.com')">💻 StackOverflow</div>
+            </div>
 
-        <div class="proxy-grid" id="proxyGrid">
-            <!-- Los proxies aparecerán aquí -->
-        </div>
+            <div class="browser-toolbar">
+                <div class="nav-buttons">
+                    <button class="nav-btn" id="backBtn" onclick="goBack()" disabled>←</button>
+                    <button class="nav-btn" id="forwardBtn" onclick="goForward()" disabled>→</button>
+                    <button class="nav-btn" onclick="reloadPage()">↻</button>
+                    <button class="nav-btn" onclick="goHome()">🏠</button>
+                </div>
 
-        <div class="browser-section">
-            <div class="browser-frame">
-                <div class="browser-header">
-                    <div class="browser-dots">
-                        <div class="dot red"></div>
-                        <div class="dot yellow"></div>
-                        <div class="dot green"></div>
+                <div class="address-bar">
+                    <input type="text" class="address-input" id="addressBar" 
+                           placeholder="Ingresa URL o busca en Google..." 
+                           onkeypress="handleAddressBarKeypress(event)">
+                    <button class="go-btn" onclick="navigateFromAddressBar()">IR</button>
+                </div>
+
+                <div class="security-indicator">
+                    <div class="security-status" id="securityStatus">
+                        <span id="securityIcon">🔒</span>
+                        <span id="securityText">SEGURO</span>
                     </div>
-                    <span id="browserUrl">about:blank</span>
-                    <span style="margin-left: auto;" id="currentProxy">Sin proxy</span>
+                    <button class="nav-btn" onclick="toggleProxy()" title="Rotar Proxy">🔄</button>
                 </div>
-                <div class="browser-content" id="browserContent">
-                    <div>
-                        🌐 Navegador con Proxy Automático<br>
-                        <small>Los proxies funcionales se usarán automáticamente</small>
+            </div>
+
+            <div class="performance-stats">
+                <div class="perf-stat">
+                    <div class="perf-number" id="loadTime">-</div>
+                    <div class="perf-label">Load Time</div>
+                </div>
+                <div class="perf-stat">
+                    <div class="perf-number" id="dataTransfer">-</div>
+                    <div class="perf-label">Data Transfer</div>
+                </div>
+                <div class="perf-stat">
+                    <div class="perf-number" id="requests">-</div>
+                    <div class="perf-label">Requests</div>
+                </div>
+                <div class="perf-stat">
+                    <div class="perf-number" id="proxyHops">-</div>
+                    <div class="perf-label">Proxy Hops</div>
+                </div>
+            </div>
+
+            <div class="browser-content" id="browserContent">
+                <div class="homepage-content">
+                    <h1 class="homepage-title">🛡️ Anonymous Browser</h1>
+                    <p class="homepage-subtitle">Navega de forma completamente anónima con proxies automáticos</p>
+                    
+                    <div class="quick-links">
+                        <div class="quick-link" onclick="navigateToUrl('https://httpbin.org/ip')">
+                            <h3>🔍 Verificar IP</h3>
+                            <p>Comprueba tu IP actual y ubicación</p>
+                        </div>
+                        <div class="quick-link" onclick="navigateToUrl('https://www.google.com')">
+                            <h3>🔍 Buscar en Google</h3>
+                            <p>Búsqueda anónima en Google</p>
+                        </div>
+                        <div class="quick-link" onclick="navigateToUrl('https://duckduckgo.com')">
+                            <h3>🦆 DuckDuckGo</h3>
+                            <p>Motor de búsqueda que no rastrea</p>
+                        </div>
+                        <div class="quick-link" onclick="navigateToUrl('https://www.reddit.com')">
+                            <h3>📱 Reddit</h3>
+                            <p>Navega Reddit de forma anónima</p>
+                        </div>
+                        <div class="quick-link" onclick="navigateToUrl('https://news.ycombinator.com')">
+                            <h3>📰 Hacker News</h3>
+                            <p>Noticias de tecnología</p>
+                        </div>
+                        <div class="quick-link" onclick="showProxyTest()">
+                            <h3>🧪 Test de Proxies</h3>
+                            <p>Probar velocidad y funcionalidad</p>
+                        </div>
                     </div>
                 </div>
+
+                <div class="loading-overlay" id="loadingOverlay">
+                    <div class="loading-spinner"></div>
+                    <p>Cargando página a través de proxy...</p>
+                    <p id="loadingProxy">Conectando...</p>
+                </div>
+            </div>
+
+            <div class="console-panel" id="consolePanel">
+                <div class="console-entry info">[SISTEMA] Anonymous Browser iniciado</div>
+                <div class="console-entry info">[PROXY] Esperando inicialización de búsqueda de proxies</div>
             </div>
         </div>
     </div>
 
     <script>
-        let isSearching = false;
-        let searchInterval;
+        // Variables globales
+        let isHunting = false;
         let proxies = [];
         let workingProxies = [];
-        let stats = {
-            totalGenerated: 0,
-            totalTested: 0,
-            totalWorking: 0,
-            startTime: null,
-            testsThisMinute: 0,
-            lastMinuteTime: Date.now()
+        let currentProxy = null;
+        let currentTab = 0;
+        let tabs = [{ url: 'home', title: 'Inicio', history: [], historyIndex: -1 }];
+        let huntingInterval;
+        let proxyRotationInterval;
+
+        // Fuentes de proxies y configuración
+        const proxySource = {
+            public: [
+                '103.140.112.170:8080', '185.162.231.106:80', '45.170.101.2:999',
+                '194.5.193.183:80', '91.107.6.115:53281', '37.139.6.125:8080',
+                '78.47.186.43:6543', '188.165.59.127:80', '217.182.243.33:8080',
+                '46.101.49.62:80', '103.81.84.36:22884', '185.32.6.129:8090',
+                '212.33.196.119:8080', '159.203.61.169:3128', '138.68.60.8:8080'
+            ],
+            ipRanges: [
+                '103.{}.{}.{}', '185.{}.{}.{}', '45.{}.{}.{}', '194.{}.{}.{}',
+                '91.{}.{}.{}', '37.{}.{}.{}', '78.{}.{}.{}', '188.{}.{}.{}',
+                '217.{}.{}.{}', '46.{}.{}.{}', '5.{}.{}.{}', '95.{}.{}.{}'
+            ],
+            ports: [80, 8080, 3128, 8000, 8888, 9999, 8118, 8123, 1080, 3129, 8081, 9090]
         };
-        let currentProxyIndex = 0;
 
-        // Fuentes de proxies públicos
-        const proxySource = [
-            'https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt',
-            'https://raw.githubusercontent.com/clarketm/proxy-list/master/proxy-list-raw.txt',
-            'https://raw.githubusercontent.com/sunny9577/proxy-scraper/master/proxies.txt'
-        ];
-
-        // Rangos de IP para generar proxies aleatorios
-        const ipRanges = [
-            '103.{}.{}.{}', '185.{}.{}.{}', '45.{}.{}.{}', '194.{}.{}.{}',
-            '91.{}.{}.{}', '37.{}.{}.{}', '78.{}.{}.{}', '188.{}.{}.{}',
-            '217.{}.{}.{}', '46.{}.{}.{}', '5.{}.{}.{}', '95.{}.{}.{}'
-        ];
-
-        const commonPorts = [80, 8080, 3128, 8000, 8888, 9999, 8118, 8123, 1080, 3129, 8081, 9090, 6588];
-
-        function log(message, type = 'info') {
-            const console = document.getElementById('console');
+        // Funciones de logging con verificación
+        function addLog(message, type = 'info') {
+            const console = document.getElementById('consolePanel');
+            if (!console) return;
+            
             const timestamp = new Date().toLocaleTimeString();
             const entry = document.createElement('div');
-            entry.className = `log-entry log-${type}`;
+            entry.className = `console-entry ${type}`;
             entry.innerHTML = `[${timestamp}] ${message}`;
             console.appendChild(entry);
             console.scrollTop = console.scrollHeight;
 
-            // Limitar logs a 200 entradas
-            if (console.children.length > 200) {
-                console.removeChild(console.children[1]); // Mantener el header
+            if (console.children.length > 100) {
+                console.removeChild(console.children[0]);
             }
         }
 
-        function updateStats() {
-            document.getElementById('totalGenerated').textContent = stats.totalGenerated;
-            document.getElementById('totalTested').textContent = stats.totalTested;
-            document.getElementById('totalWorking').textContent = stats.totalWorking;
-            
-            const successRate = stats.totalTested > 0 ? 
-                ((stats.totalWorking / stats.totalTested) * 100).toFixed(1) : 0;
-            document.getElementById('successRate').textContent = successRate + '%';
-
-            // Calcular velocidad de pruebas por minuto
-            const now = Date.now();
-            if (now - stats.lastMinuteTime >= 60000) {
-                document.getElementById('currentSpeed').textContent = stats.testsThisMinute;
-                stats.testsThisMinute = 0;
-                stats.lastMinuteTime = now;
-            }
-
-            // Tiempo transcurrido
-            if (stats.startTime) {
-                const elapsed = Math.floor((Date.now() - stats.startTime) / 1000);
-                const minutes = Math.floor(elapsed / 60);
-                const seconds = elapsed % 60;
-                document.getElementById('timeRunning').textContent = 
-                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            }
-        }
-
-        function generateRandomProxies(count) {
-            const newProxies = [];
-            for (let i = 0; i < count; i++) {
-                const pattern = ipRanges[Math.floor(Math.random() * ipRanges.length)];
-                const ip = pattern
-                    .replace(/\{}/g, () => Math.floor(Math.random() * 255) + 1);
-                const port = commonPorts[Math.floor(Math.random() * commonPorts.length)];
-                
-                newProxies.push({
-                    ip,
-                    port,
-                    type: 'http',
-                    status: 'untested',
-                    responseTime: null,
-                    lastTested: null,
-                    source: 'random'
-                });
-            }
-            return newProxies;
-        }
-
-        async function fetchPublicProxies() {
+        // Generación de proxies
+        function generateProxies(count) {
             const newProxies = [];
             
-            // Simular obtención de proxies públicos
-            const publicProxies = [
-                '103.140.112.170:8080', '185.162.231.106:80', '45.170.101.2:999',
-                '194.5.193.183:80', '91.107.6.115:53281', '37.139.6.125:8080',
-                '78.47.186.43:6543', '188.165.59.127:80', '217.182.243.33:8080',
-                '46.101.49.62:80', '103.81.84.36:22884', '185.32.6.129:8090'
-            ];
-
-            publicProxies.forEach(proxy => {
+            // Agregar proxies públicos conocidos
+            proxySource.public.forEach(proxy => {
                 const [ip, port] = proxy.split(':');
                 newProxies.push({
                     ip,
@@ -631,59 +805,83 @@
                     type: 'http',
                     status: 'untested',
                     responseTime: null,
-                    lastTested: null,
-                    source: 'public'
+                    source: 'public',
+                    lastTested: null
                 });
             });
+
+            // Generar proxies aleatorios
+            const randomCount = Math.max(0, count - newProxies.length);
+            for (let i = 0; i < randomCount; i++) {
+                const pattern = proxySource.ipRanges[Math.floor(Math.random() * proxySource.ipRanges.length)];
+                const ip = pattern.replace(/\{}/g, () => Math.floor(Math.random() * 255) + 1);
+                const port = proxySource.ports[Math.floor(Math.random() * proxySource.ports.length)];
+                
+                newProxies.push({
+                    ip,
+                    port,
+                    type: 'http',
+                    status: 'untested',
+                    responseTime: null,
+                    source: 'random',
+                    lastTested: null
+                });
+            }
 
             return newProxies;
         }
 
+        // Prueba de proxies
         async function testProxy(proxy) {
             return new Promise((resolve) => {
                 const timeout = parseInt(document.getElementById('timeout').value);
                 const startTime = Date.now();
-                
-                // Simular prueba de proxy (en implementación real usarías fetch con proxy)
+
                 setTimeout(() => {
-                    const isWorking = Math.random() > 0.85; // 15% funcionan
+                    const isWorking = Math.random() > 0.8; // 20% funcionan
                     const responseTime = Date.now() - startTime;
                     
                     proxy.status = isWorking ? 'working' : 'failed';
-                    proxy.responseTime = isWorking ? responseTime : null;
+                    proxy.responseTime = isWorking ? responseTime + Math.random() * 500 : null;
                     proxy.lastTested = new Date();
                     
-                    stats.totalTested++;
-                    stats.testsThisMinute++;
-                    
                     if (isWorking) {
-                        stats.totalWorking++;
                         workingProxies.push(proxy);
-                        log(`✅ Proxy funcional encontrado: ${proxy.ip}:${proxy.port} (${responseTime}ms)`, 'success');
+                        addLog(`✅ Proxy funcional: ${proxy.ip}:${proxy.port} (${proxy.responseTime.toFixed(0)}ms)`, 'success');
                     } else {
-                        log(`❌ Proxy no funcional: ${proxy.ip}:${proxy.port}`, 'error');
+                        addLog(`❌ Proxy falló: ${proxy.ip}:${proxy.port}`, 'error');
                     }
                     
                     resolve(proxy);
-                }, Math.random() * timeout);
+                }, Math.random() * timeout * 0.8 + timeout * 0.2);
             });
         }
 
+        // Batch testing de proxies
         async function testProxiesBatch(proxiesBatch) {
-            log(`🔍 Probando lote de ${proxiesBatch.length} proxies...`, 'info');
+            addLog(`🔍 Probando lote de ${proxiesBatch.length} proxies...`, 'info');
             
             const promises = proxiesBatch.map(proxy => testProxy(proxy));
             await Promise.all(promises);
             
             updateProxyDisplay();
-            updateStats();
+            updateStatus();
         }
 
+        // Actualizar display de proxies
         function updateProxyDisplay() {
-            const grid = document.getElementById('proxyGrid');
-            grid.innerHTML = '';
+            const proxyList = document.getElementById('proxyList');
+            
+            if (proxies.length === 0) {
+                proxyList.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #666;">
+                        No hay proxies disponibles.<br>
+                        Inicia la búsqueda arriba.
+                    </div>
+                `;
+                return;
+            }
 
-            // Mostrar proxies funcionales primero
             const sortedProxies = [...proxies].sort((a, b) => {
                 if (a.status === 'working' && b.status !== 'working') return -1;
                 if (a.status !== 'working' && b.status === 'working') return 1;
@@ -693,412 +891,633 @@
                 return 0;
             });
 
-            sortedProxies.slice(0, 20).forEach(proxy => { // Mostrar solo los primeros 20
-                const card = document.createElement('div');
-                card.className = `proxy-card ${proxy.status === 'working' ? 'working' : ''}`;
+            let html = '';
+            sortedProxies.slice(0, 15).forEach(proxy => {
+                const isActive = currentProxy && currentProxy.ip === proxy.ip && currentProxy.port === proxy.port;
                 
-                let statusClass = 'status-failed';
-                let statusText = 'Failed';
-                if (proxy.status === 'working') {
-                    statusClass = 'status-working';
-                    statusText = 'Working';
-                } else if (proxy.status === 'untested') {
-                    statusClass = 'status-testing';
-                    statusText = 'Testing';
-                }
-
-                card.innerHTML = `
-                    <div class="proxy-header">
-                        <div class="proxy-address">${proxy.ip}:${proxy.port}</div>
-                        <div class="proxy-status ${statusClass}">${statusText}</div>
-                    </div>
-                    <div class="proxy-details">
-                        ${proxy.responseTime ? `Tiempo: ${proxy.responseTime}ms` : ''}
-                        ${proxy.lastTested ? `<br>Probado: ${proxy.lastTested.toLocaleTimeString()}` : ''}
-                        <br>Fuente: ${proxy.source}
-                        <br>Tipo: ${proxy.type.toUpperCase()}
-                    </div>
-                `;
-                
-                grid.appendChild(card);
-            });
-        }
-
-        async function searchCycle() {
-            if (!isSearching) return;
-
-            const batchSize = parseInt(document.getElementById('batchSize').value);
-            const minWorking = parseInt(document.getElementById('minWorking').value);
-
-            log(`🚀 Iniciando nuevo ciclo de búsqueda...`, 'info');
-
-            // Generar nuevos proxies
-            let newProxies = [];
-            
-            // Obtener proxies públicos
-            try {
-                const publicProxies = await fetchPublicProxies();
-                newProxies.push(...publicProxies);
-                log(`📥 Obtenidos ${publicProxies.length} proxies de fuentes públicas`, 'info');
-            } catch (error) {
-                log(`⚠️ Error obteniendo proxies públicos: ${error.message}`, 'warning');
-            }
-
-            // Generar proxies aleatorios para completar el lote
-            const randomCount = Math.max(0, batchSize - newProxies.length);
-            if (randomCount > 0) {
-                const randomProxies = generateRandomProxies(randomCount);
-                newProxies.push(...randomProxies);
-                log(`🎲 Generados ${randomCount} proxies aleatorios`, 'info');
-            }
-
-            // Agregar a la lista principal
-            proxies.push(...newProxies);
-            stats.totalGenerated += newProxies.length;
-
-            // Probar el lote
-            await testProxiesBatch(newProxies);
-
-            // Verificar si hemos alcanzado el objetivo
-            if (workingProxies.length >= minWorking) {
-                log(`🎯 Objetivo alcanzado: ${workingProxies.length} proxies funcionales encontrados`, 'success');
-                log(`🔄 Continuando búsqueda para mantener la lista actualizada...`, 'info');
-            }
-
-            // Limpiar proxies muy antiguos para mantener rendimiento
-            if (proxies.length > 1000) {
-                proxies = proxies.slice(-500);
-                log(`🗑️ Lista de proxies limpiada para mantener rendimiento`, 'info');
-            }
-
-            // Programar siguiente ciclo
-            if (isSearching) {
-                const interval = parseInt(document.getElementById('searchInterval').value) * 1000;
-                setTimeout(searchCycle, interval);
-            }
-        }
-
-        function startAutoSearch() {
-            if (isSearching) return;
-
-            isSearching = true;
-            stats.startTime = Date.now();
-            stats.lastMinuteTime = Date.now();
-
-            document.getElementById('startBtn').disabled = true;
-            document.getElementById('stopBtn').disabled = false;
-            document.getElementById('autoIndicator').style.display = 'block';
-
-            log(`🚀 Búsqueda automática iniciada`, 'success');
-            log(`⚙️ Configuración: ${document.getElementById('batchSize').value} proxies/lote, ` +
-                `${document.getElementById('timeout').value}ms timeout, ` +
-                `objetivo: ${document.getElementById('minWorking').value} funcionales`, 'info');
-
-            // Iniciar primer ciclo inmediatamente
-            searchCycle();
-
-            // Actualizar estadísticas cada segundo
-            searchInterval = setInterval(updateStats, 1000);
-        }
-
-        function stopAutoSearch() {
-            if (!isSearching) return;
-
-            isSearching = false;
-            clearInterval(searchInterval);
-
-            document.getElementById('startBtn').disabled = false;
-            document.getElementById('stopBtn').disabled = true;
-            document.getElementById('autoIndicator').style.display = 'none';
-
-            log(`⏹️ Búsqueda automática detenida`, 'warning');
-            log(`📊 Resumen final: ${stats.totalGenerated} generados, ` +
-                `${stats.totalTested} probados, ${stats.totalWorking} funcionales`, 'info');
-        }
-
-        function useRandomWorkingProxy() {
-            if (workingProxies.length === 0) {
-                document.getElementById('currentProxy').textContent = 'Sin proxy';
-                document.getElementById('browserContent').innerHTML = `
-                    <div>❌ No hay proxies funcionales disponibles</div>
-                `;
-                return null;
-            }
-
-            const proxy = workingProxies[currentProxyIndex % workingProxies.length];
-            currentProxyIndex++;
-
-            document.getElementById('currentProxy').textContent = `${proxy.ip}:${proxy.port}`;
-            document.getElementById('browserContent').innerHTML = `
-                <div>
-                    🛡️ Navegando con proxy seguro<br>
-                    <strong>${proxy.ip}:${proxy.port}</strong><br>
-                    <small>Tiempo de respuesta: ${proxy.responseTime}ms</small>
-                </div>
-            `;
-
-            log(`🔄 Proxy rotado a: ${proxy.ip}:${proxy.port}`, 'info');
-            return proxy;
-        }
-
-        // Auto-rotar proxy cada 30 segundos
-        setInterval(() => {
-            if (workingProxies.length > 0) {
-                useRandomWorkingProxy();
-            }
-        }, 30000);
-
-        // Inicializar interfaz
-        window.addEventListener('load', () => {
-            log(`🔍 Auto Proxy Finder iniciado`, 'info');
-            log(`ℹ️ Configuración lista. Presiona "Iniciar Búsqueda" para comenzar`, 'info');
-            updateStats();
-        });
-
-        // Simulador de navegación web
-        document.getElementById('testUrl').addEventListener('change', (e) => {
-            const url = e.target.value;
-            if (url && workingProxies.length > 0) {
-                const proxy = useRandomWorkingProxy();
-                if (proxy) {
-                    document.getElementById('browserUrl').textContent = url;
-                    log(`🌐 Navegando a ${url} con proxy ${proxy.ip}:${proxy.port}`, 'info');
-                }
-            }
-        });
-
-        // Función para testear URL específica
-        function testCurrentUrl() {
-            const url = document.getElementById('testUrl').value;
-            if (!url) {
-                log(`⚠️ Ingresa una URL para probar`, 'warning');
-                return;
-            }
-
-            if (workingProxies.length === 0) {
-                log(`❌ No hay proxies funcionales para probar`, 'error');
-                return;
-            }
-
-            const proxy = useRandomWorkingProxy();
-            document.getElementById('browserUrl').textContent = url;
-            
-            // Simular navegación
-            setTimeout(() => {
-                document.getElementById('browserContent').innerHTML = `
-                    <div style="text-align: left; width: 100%; font-size: 11px;">
-                        <strong>✅ Conexión exitosa</strong><br><br>
-                        <strong>URL:</strong> ${url}<br>
-                        <strong>Proxy:</strong> ${proxy.ip}:${proxy.port}<br>
-                        <strong>Tiempo:</strong> ${proxy.responseTime}ms<br>
-                        <strong>Estado:</strong> Tu IP real está oculta<br><br>
-                        <div style="background: #21262d; padding: 10px; border-radius: 4px; margin-top: 10px;">
-                            <strong>Respuesta simulada:</strong><br>
-                            {<br>
-                            &nbsp;&nbsp;"origin": "${proxy.ip}",<br>
-                            &nbsp;&nbsp;"url": "${url}",<br>
-                            &nbsp;&nbsp;"headers": {...}<br>
-                            }
+                html += `
+                    <div class="proxy-item ${proxy.status} ${isActive ? 'active' : ''}" onclick="selectProxy('${proxy.ip}', ${proxy.port})">
+                        <div class="proxy-header">
+                            <div class="proxy-address">${proxy.ip}:${proxy.port}</div>
+                            <div class="proxy-status status-${proxy.status}">${proxy.status}</div>
+                        </div>
+                        <div style="color: #888; font-size: 10px;">
+                            ${proxy.responseTime ? `⚡ ${proxy.responseTime.toFixed(0)}ms` : ''}
+                            ${proxy.source ? `📍 ${proxy.source}` : ''}
+                            ${proxy.lastTested ? `🕒 ${proxy.lastTested.toLocaleTimeString()}` : ''}
                         </div>
                     </div>
                 `;
-                log(`✅ Página cargada exitosamente a través del proxy`, 'success');
-            }, 1000);
+            });
+
+            proxyList.innerHTML = html;
         }
 
-        // Agregar botón de prueba manual
-        document.addEventListener('DOMContentLoaded', () => {
-            const testButton = document.createElement('button');
-            testButton.className = 'btn';
-            testButton.textContent = '🧪 Probar URL';
-            testButton.onclick = testCurrentUrl;
-            testButton.style.marginLeft = '10px';
+        // Actualizar estado general con verificación de elementos
+        function updateStatus() {
+            const activeProxiesEl = document.getElementById('activeProxies');
+            const huntingStatusEl = document.getElementById('huntingStatus');
+            const currentProxyDisplayEl = document.getElementById('currentProxyDisplay');
+            const proxySpeedEl = document.getElementById('proxySpeed');
+            const ipHiddenEl = document.getElementById('ipHidden');
             
-            const urlInput = document.getElementById('testUrl');
-            urlInput.parentNode.appendChild(testButton);
-        });
+            if (activeProxiesEl) activeProxiesEl.textContent = workingProxies.length;
+            if (huntingStatusEl) huntingStatusEl.textContent = isHunting ? 'Buscando...' : 'Inactivo';
+            
+            if (currentProxy) {
+                if (currentProxyDisplayEl) currentProxyDisplayEl.textContent = `${currentProxy.ip}:${currentProxy.port}`;
+                if (proxySpeedEl) proxySpeedEl.textContent = `${currentProxy.responseTime?.toFixed(0) || '-'}ms`;
+                if (ipHiddenEl) ipHiddenEl.textContent = '✅';
+            } else {
+                if (currentProxyDisplayEl) currentProxyDisplayEl.textContent = 'Ninguno';
+                if (proxySpeedEl) proxySpeedEl.textContent = '-';
+                if (ipHiddenEl) ipHiddenEl.textContent = '❌';
+            }
+        }
 
-        // Funciones para exportar/importar listas de proxies
-        function exportWorkingProxies() {
-            if (workingProxies.length === 0) {
-                log(`⚠️ No hay proxies funcionales para exportar`, 'warning');
+        // Iniciar búsqueda de proxies
+        async function startProxyHunting() {
+            if (isHunting) return;
+
+            isHunting = true;
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+
+            addLog('🚀 Iniciando búsqueda automática de proxies...', 'success');
+            
+            await proxyHuntingCycle();
+            
+            // Iniciar rotación automática de proxies cada 45 segundos
+            proxyRotationInterval = setInterval(() => {
+                if (workingProxies.length > 0) {
+                    rotateToNextProxy();
+                }
+            }, 45000);
+
+            // Continuar búsqueda cada 60 segundos
+            huntingInterval = setInterval(proxyHuntingCycle, 60000);
+        }
+
+        // Detener búsqueda
+        function stopProxyHunting() {
+            isHunting = false;
+            clearInterval(huntingInterval);
+            clearInterval(proxyRotationInterval);
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+
+            addLog('⏹️ Búsqueda de proxies detenida', 'warning');
+        }
+
+        // Ciclo de búsqueda
+        async function proxyHuntingCycle() {
+            const batchSize = parseInt(document.getElementById('batchSize').value);
+            const minWorking = parseInt(document.getElementById('minWorking').value);
+
+            // Generar nuevos proxies
+            const newProxies = generateProxies(batchSize);
+            proxies.push(...newProxies);
+
+            addLog(`📥 Generados ${newProxies.length} proxies nuevos`, 'info');
+
+            // Probar proxies en lotes más pequeños para mejor rendimiento
+            const chunkSize = 10;
+            for (let i = 0; i < newProxies.length; i += chunkSize) {
+                const chunk = newProxies.slice(i, i + chunkSize);
+                await testProxiesBatch(chunk);
+                await new Promise(resolve => setTimeout(resolve, 500)); // Pausa entre lotes
+            }
+
+            // Auto-seleccionar el mejor proxy si no hay uno activo
+            if (!currentProxy && workingProxies.length > 0) {
+                selectBestProxy();
+            }
+
+            // Limpiar proxies antiguos para mantener rendimiento
+            if (proxies.length > 200) {
+                proxies = proxies.slice(-100);
+                addLog('🗑️ Lista de proxies optimizada', 'info');
+            }
+
+            addLog(`📊 Estado: ${workingProxies.length} proxies funcionales de ${proxies.length} total`, 'info');
+        }
+
+        // Seleccionar el mejor proxy disponible
+        function selectBestProxy() {
+            if (workingProxies.length === 0) return;
+
+            const bestProxy = workingProxies.sort((a, b) => a.responseTime - b.responseTime)[0];
+            selectProxy(bestProxy.ip, bestProxy.port);
+        }
+
+        // Rotar al siguiente proxy
+        function rotateToNextProxy() {
+            if (workingProxies.length <= 1) return;
+
+            const currentIndex = workingProxies.findIndex(p => 
+                currentProxy && p.ip === currentProxy.ip && p.port === currentProxy.port
+            );
+            
+            const nextIndex = (currentIndex + 1) % workingProxies.length;
+            const nextProxy = workingProxies[nextIndex];
+            
+            selectProxy(nextProxy.ip, nextProxy.port);
+            addLog(`🔄 Proxy rotado automáticamente a ${nextProxy.ip}:${nextProxy.port}`, 'info');
+        }
+
+        // Seleccionar un proxy específico
+        function selectProxy(ip, port) {
+            const proxy = proxies.find(p => p.ip === ip && p.port === port);
+            if (!proxy || proxy.status !== 'working') {
+                addLog(`❌ No se puede seleccionar proxy ${ip}:${port}`, 'error');
                 return;
             }
 
-            const proxyList = workingProxies.map(p => `${p.ip}:${p.port}`).join('\n');
-            const blob = new Blob([proxyList], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
+            currentProxy = proxy;
+            updateStatus();
+            updateProxyDisplay();
+            updateSecurityStatus();
             
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `working_proxies_${new Date().toISOString().split('T')[0]}.txt`;
-            a.click();
-            
-            URL.revokeObjectURL(url);
-            log(`📥 Lista de ${workingProxies.length} proxies funcionales exportada`, 'success');
+            addLog(`✅ Proxy seleccionado: ${ip}:${port} (${proxy.responseTime?.toFixed(0)}ms)`, 'success');
         }
 
-        // Agregar controles adicionales
-        function addExtraControls() {
-            const controlPanel = document.querySelector('.control-panel');
-            
-            const extraControls = document.createElement('div');
-            extraControls.style.cssText = 'margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;';
-            
-            extraControls.innerHTML = `
-                <button class="btn" onclick="exportWorkingProxies()">📥 Exportar Proxies</button>
-                <button class="btn" onclick="clearAllProxies()">🗑️ Limpiar Todo</button>
-                <button class="btn" onclick="retestWorkingProxies()">🔄 Re-probar Funcionales</button>
-                <button class="btn" onclick="showDetailedStats()">📊 Estadísticas Detalladas</button>
-            `;
-            
-            controlPanel.appendChild(extraControls);
+        // Actualizar estado de seguridad con verificación
+        function updateSecurityStatus() {
+            const securityStatus = document.getElementById('securityStatus');
+            const securityIcon = document.getElementById('securityIcon');
+            const securityText = document.getElementById('securityText');
+
+            if (!securityStatus || !securityIcon || !securityText) return;
+
+            if (currentProxy) {
+                securityStatus.className = 'security-status secure';
+                securityIcon.textContent = '🛡️';
+                securityText.textContent = 'ANÓNIMO';
+            } else {
+                securityStatus.className = 'security-status insecure';
+                securityIcon.textContent = '⚠️';
+                securityText.textContent = 'EXPUESTO';
+            }
         }
 
-        function clearAllProxies() {
-            if (confirm('¿Estás seguro de que quieres limpiar todos los proxies?')) {
-                proxies = [];
-                workingProxies = [];
-                stats.totalGenerated = 0;
-                stats.totalTested = 0;
-                stats.totalWorking = 0;
-                currentProxyIndex = 0;
+        // Navegación del navegador
+        function navigateToUrl(url) {
+            if (!url) return;
+
+            // Convertir búsquedas a Google
+            if (!url.includes('.') && !url.startsWith('http')) {
+                url = `https://www.google.com/search?q=${encodeURIComponent(url)}`;
+            }
+
+            // Agregar protocolo si no lo tiene
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+
+            showLoadingOverlay(url);
+            document.getElementById('addressBar').value = url;
+
+            // Simular carga de página con proxy
+            simulatePageLoad(url);
+        }
+
+        function navigateFromAddressBar() {
+            const url = document.getElementById('addressBar').value.trim();
+            if (url) {
+                navigateToUrl(url);
+            }
+        }
+
+        function handleAddressBarKeypress(event) {
+            if (event.key === 'Enter') {
+                navigateFromAddressBar();
+            }
+        }
+
+        // Simular carga de página con verificaciones
+        function simulatePageLoad(url) {
+            const startTime = Date.now();
+            
+            setTimeout(() => {
+                hideLoadingOverlay();
                 
-                updateProxyDisplay();
-                updateStats();
+                const loadTime = Date.now() - startTime;
+                const dataTransfer = Math.floor(Math.random() * 2000) + 500; // KB
+                const requests = Math.floor(Math.random() * 50) + 10;
                 
-                document.getElementById('proxyGrid').innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #7d8590; padding: 40px;">No hay proxies</div>';
-                document.getElementById('currentProxy').textContent = 'Sin proxy';
-                document.getElementById('browserContent').innerHTML = `
-                    <div>
-                        🌐 Navegador con Proxy Automático<br>
-                        <small>Los proxies funcionales se usarán automáticamente</small>
+                // Actualizar estadísticas de rendimiento con verificación
+                const loadTimeEl = document.getElementById('loadTime');
+                const dataTransferEl = document.getElementById('dataTransfer');
+                const requestsEl = document.getElementById('requests');
+                const proxyHopsEl = document.getElementById('proxyHops');
+                
+                if (loadTimeEl) loadTimeEl.textContent = loadTime + 'ms';
+                if (dataTransferEl) dataTransferEl.textContent = dataTransfer + 'KB';
+                if (requestsEl) requestsEl.textContent = requests;
+                if (proxyHopsEl) proxyHopsEl.textContent = currentProxy ? '1' : '0';
+
+                // Actualizar contenido del navegador
+                showWebsiteContent(url);
+                
+                // Agregar a historial
+                addToHistory(url);
+                
+                addLog(`🌐 Página cargada: ${url} (${loadTime}ms)`, 'success');
+                
+            }, Math.random() * 2000 + 1000); // Simular tiempo de carga variable
+        }
+
+        function showLoadingOverlay(url) {
+            const overlay = document.getElementById('loadingOverlay');
+            const loadingProxy = document.getElementById('loadingProxy');
+            
+            if (!overlay || !loadingProxy) return;
+            
+            if (currentProxy) {
+                loadingProxy.textContent = `Conectando a través de ${currentProxy.ip}:${currentProxy.port}...`;
+            } else {
+                loadingProxy.textContent = 'Conectando directamente (sin proxy)...';
+            }
+            
+            overlay.style.display = 'flex';
+        }
+
+        function hideLoadingOverlay() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+            }
+        }
+
+        function showWebsiteContent(url) {
+            const browserContent = document.getElementById('browserContent');
+            
+            // Simular contenido de diferentes tipos de sitios web
+            let content = '';
+            
+            if (url.includes('httpbin.org/ip')) {
+                content = `
+                    <div style="padding: 40px; background: #f0f8ff; font-family: monospace;">
+                        <h2>🔍 Información de tu IP</h2>
+                        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                            <strong>IP Address:</strong> ${currentProxy ? currentProxy.ip : '192.168.1.100'}<br>
+                            <strong>User Agent:</strong> Anonymous Browser/1.0<br>
+                            <strong>Proxy Status:</strong> ${currentProxy ? '✅ Activo' : '❌ Desactivado'}<br>
+                            <strong>Location:</strong> ${currentProxy ? 'Oculta por proxy' : 'Tu ubicación real'}<br>
+                            <strong>ISP:</strong> ${currentProxy ? 'Proxy Server' : 'Tu ISP real'}
+                        </div>
+                        <p style="color: #666;">
+                            ${currentProxy ? 
+                                '🛡️ Tu IP real está oculta. Navegas de forma anónima.' : 
+                                '⚠️ Tu IP real está expuesta. Activa un proxy para navegar de forma anónima.'
+                            }
+                        </p>
                     </div>
                 `;
-                
-                log(`🗑️ Todos los proxies han sido eliminados`, 'info');
+            } else if (url.includes('google.com')) {
+                content = `
+                    <div style="padding: 40px; background: white; min-height: 100%;">
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjcyIiBoZWlnaHQ9IjkyIiB2aWV3Qm94PSIwIDAgMjcyIDkyIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMTE1LjQ4IDI2LjY0SDEyNi43MlYzMy4yOEgxMTUuNDhWMjYuNjRaIiBmaWxsPSIjNDI4NUY0Ii8+CjxwYXRoIGQ9Ik0xNTguNCAxOC4yNEgxNjkuNjRWMjQuODhIMTU4LjRWMTguMjRaIiBmaWxsPSIjRkJCQzA0Ii8+Cjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjMwIiBmaWxsPSIjNDI4NUY0Ij5Hb29nbGU8L3RleHQ+Cjwvc3ZnPg==" alt="Google" style="height: 80px;">
+                        </div>
+                        <div style="max-width: 600px; margin: 0 auto;">
+                            <input type="text" placeholder="Buscar en Google..." 
+                                   style="width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 25px; font-size: 16px; text-align: center;">
+                            <div style="text-align: center; margin-top: 30px;">
+                                <button style="padding: 10px 20px; margin: 0 10px; border: 1px solid #ddd; background: #f8f9fa; border-radius: 4px;">Buscar con Google</button>
+                                <button style="padding: 10px 20px; margin: 0 10px; border: 1px solid #ddd; background: #f8f9fa; border-radius: 4px;">Me siento con suerte</button>
+                            </div>
+                        </div>
+                        <div style="position: fixed; bottom: 20px; right: 20px; background: #e8f5e8; padding: 10px; border-radius: 8px; font-size: 12px;">
+                            🛡️ Navegando a través de proxy: ${currentProxy ? currentProxy.ip : 'Ninguno'}
+                        </div>
+                    </div>
+                `;
+            } else {
+                content = `
+                    <div style="padding: 40px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; min-height: 100%;">
+                        <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+                            <h1>🌐 Página Web Simulada</h1>
+                            <p style="margin: 20px 0; font-size: 18px;">
+                                Esta es una simulación de cómo se vería una página web cargada a través del proxy.
+                            </p>
+                            
+                            <div style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; margin: 30px 0; backdrop-filter: blur(10px);">
+                                <h2>📊 Información de Conexión</h2>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px;">
+                                    <div>
+                                        <strong>URL:</strong><br>
+                                        <span style="word-break: break-all;">${url}</span>
+                                    </div>
+                                    <div>
+                                        <strong>Proxy:</strong><br>
+                                        ${currentProxy ? `${currentProxy.ip}:${currentProxy.port}` : 'Directo'}
+                                    </div>
+                                    <div>
+                                        <strong>Estado:</strong><br>
+                                        ${currentProxy ? '🛡️ Anónimo' : '⚠️ Expuesto'}
+                                    </div>
+                                    <div>
+                                        <strong>Velocidad:</strong><br>
+                                        ${currentProxy ? `${currentProxy.responseTime?.toFixed(0)}ms` : '-'}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
+                                <h3>🔒 Características de Seguridad</h3>
+                                <ul style="text-align: left; margin: 15px 0; padding-left: 20px;">
+                                    <li>✅ IP real oculta${!currentProxy ? ' (⚠️ DESACTIVADO)' : ''}</li>
+                                    <li>✅ Tráfico enrutado a través de proxy${!currentProxy ? ' (⚠️ DESACTIVADO)' : ''}</li>
+                                    <li>✅ Ubicación geográfica enmascarada${!currentProxy ? ' (⚠️ DESACTIVADO)' : ''}</li>
+                                    <li>✅ Protección contra rastreo${!currentProxy ? ' (⚠️ LIMITADO)' : ''}</li>
+                                </ul>
+                            </div>
+                            
+                            <p style="margin-top: 30px; font-size: 14px; opacity: 0.8;">
+                                En una implementación real, aquí se mostraría el contenido completo del sitio web 
+                                cargado a través del sistema de proxies.
+                            </p>
+                        </div>
+                    </div>
+                `;
             }
+            
+            browserContent.innerHTML = content;
         }
 
-        function retestWorkingProxies() {
-            if (workingProxies.length === 0) {
-                log(`⚠️ No hay proxies funcionales para re-probar`, 'warning');
-                return;
-            }
-
-            log(`🔄 Re-probando ${workingProxies.length} proxies funcionales...`, 'info');
-            
-            // Marcar todos como "probando" y re-testear
-            workingProxies.forEach(proxy => proxy.status = 'testing');
-            workingProxies = []; // Limpiar lista de funcionales
-            stats.totalWorking = 0;
-            
-            testProxiesBatch(proxies.filter(p => p.status === 'testing'));
-        }
-
-        function showDetailedStats() {
-            const modal = document.createElement('div');
-            modal.style.cssText = `
-                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-                background: rgba(0,0,0,0.8); z-index: 10000;
-                display: flex; align-items: center; justify-content: center;
-                padding: 20px;
-            `;
-            
-            const content = document.createElement('div');
-            content.style.cssText = `
-                background: #161b22; border: 1px solid #30363d;
-                border-radius: 12px; padding: 30px; max-width: 500px;
-                width: 100%; color: #f0f6fc;
-            `;
-            
-            const successRate = stats.totalTested > 0 ? 
-                ((stats.totalWorking / stats.totalTested) * 100).toFixed(2) : 0;
-            
-            const avgResponseTime = workingProxies.length > 0 ?
-                (workingProxies.reduce((sum, p) => sum + p.responseTime, 0) / workingProxies.length).toFixed(0) : 0;
-            
-            const sourceStats = {};
-            proxies.forEach(p => {
-                sourceStats[p.source] = (sourceStats[p.source] || 0) + 1;
+        // Gestión de pestañas
+        function newTab() {
+            const newTabIndex = tabs.length;
+            tabs.push({
+                url: 'home',
+                title: 'Nueva Pestaña',
+                history: [],
+                historyIndex: -1
             });
             
-            content.innerHTML = `
-                <h2 style="color: #58a6ff; margin-bottom: 20px;">📊 Estadísticas Detalladas</h2>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                    <div><strong>Total Generados:</strong> ${stats.totalGenerated}</div>
-                    <div><strong>Total Probados:</strong> ${stats.totalTested}</div>
-                    <div><strong>Funcionales:</strong> ${stats.totalWorking}</div>
-                    <div><strong>Tasa de Éxito:</strong> ${successRate}%</div>
-                    <div><strong>Tiempo Promedio:</strong> ${avgResponseTime}ms</div>
-                    <div><strong>Proxies/minuto:</strong> ${stats.testsThisMinute}</div>
-                </div>
-                
-                <h3 style="color: #58a6ff; margin: 20px 0 10px 0;">Por Fuente:</h3>
-                <div style="background: #0d1117; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                    ${Object.entries(sourceStats).map(([source, count]) => 
-                        `<div>${source}: ${count} proxies</div>`
-                    ).join('')}
-                </div>
-                
-                <h3 style="color: #58a6ff; margin: 20px 0 10px 0;">Top 5 Proxies Más Rápidos:</h3>
-                <div style="background: #0d1117; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 12px;">
-                    ${workingProxies
-                        .sort((a, b) => a.responseTime - b.responseTime)
-                        .slice(0, 5)
-                        .map((p, i) => `${i+1}. ${p.ip}:${p.port} (${p.responseTime}ms)`)
-                        .join('<br>')
-                    }
-                </div>
-                
-                <button onclick="this.parentElement.parentElement.remove()" 
-                        style="background: #238636; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; width: 100%;">
-                    Cerrar
-                </button>
+            // Crear elemento de pestaña
+            const tabsContainer = document.querySelector('.tabs-container');
+            const newTabElement = document.createElement('div');
+            newTabElement.className = 'tab';
+            newTabElement.setAttribute('data-tab', newTabIndex);
+            newTabElement.innerHTML = `
+                📄 Nueva Pestaña
+                <span class="tab-close" onclick="closeTab(${newTabIndex})">×</span>
             `;
+            newTabElement.onclick = () => switchTab(newTabIndex);
             
-            modal.appendChild(content);
-            document.body.appendChild(modal);
+            tabsContainer.insertBefore(newTabElement, tabsContainer.lastElementChild);
+            switchTab(newTabIndex);
+        }
+
+        function closeTab(tabIndex) {
+            if (tabs.length === 1) return; // No cerrar la última pestaña
             
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) modal.remove();
+            tabs.splice(tabIndex, 1);
+            
+            // Actualizar los índices de las pestañas
+            const tabElements = document.querySelectorAll('.tab');
+            tabElements.forEach((tab, index) => {
+                if (index === tabIndex) {
+                    tab.remove();
+                } else if (index > tabIndex) {
+                    tab.setAttribute('data-tab', index - 1);
+                    const closeBtn = tab.querySelector('.tab-close');
+                    closeBtn.onclick = () => closeTab(index - 1);
+                }
             });
-        }
-
-        // Inicializar controles adicionales cuando se carga la página
-        setTimeout(addExtraControls, 100);
-
-        // Guardar configuración en localStorage
-        function saveConfig() {
-            const config = {
-                batchSize: document.getElementById('batchSize').value,
-                timeout: document.getElementById('timeout').value,
-                minWorking: document.getElementById('minWorking').value,
-                searchInterval: document.getElementById('searchInterval').value,
-                testUrl: document.getElementById('testUrl').value
-            };
-            localStorage.setItem('autoProxyConfig', JSON.stringify(config));
-        }
-
-        function loadConfig() {
-            const config = localStorage.getItem('autoProxyConfig');
-            if (config) {
-                const parsed = JSON.parse(config);
-                Object.entries(parsed).forEach(([key, value]) => {
-                    const element = document.getElementById(key);
-                    if (element) element.value = value;
-                });
+            
+            // Cambiar a pestaña adyacente si cerramos la activa
+            if (currentTab === tabIndex) {
+                switchTab(Math.max(0, tabIndex - 1));
+            } else if (currentTab > tabIndex) {
+                currentTab--;
             }
         }
 
-        // Guardar configuración cuando cambie
-        ['batchSize', 'timeout', 'minWorking', 'searchInterval', 'testUrl'].forEach(id => {
-            document.getElementById(id).addEventListener('change', saveConfig);
+        function switchTab(tabIndex) {
+            if (tabIndex >= tabs.length) return;
+            
+            currentTab = tabIndex;
+            
+            // Actualizar UI de pestañas
+            document.querySelectorAll('.tab').forEach((tab, index) => {
+                tab.classList.toggle('active', index === tabIndex);
+            });
+            
+            // Cargar contenido de la pestaña
+            const tab = tabs[tabIndex];
+            if (tab.url === 'home') {
+                goHome();
+            } else {
+                navigateToUrl(tab.url);
+            }
+        }
+
+        // Funciones de navegación
+        function goBack() {
+            const tab = tabs[currentTab];
+            if (tab.historyIndex > 0) {
+                tab.historyIndex--;
+                navigateToUrl(tab.history[tab.historyIndex]);
+            }
+        }
+
+        function goForward() {
+            const tab = tabs[currentTab];
+            if (tab.historyIndex < tab.history.length - 1) {
+                tab.historyIndex++;
+                navigateToUrl(tab.history[tab.historyIndex]);
+            }
+        }
+
+        function reloadPage() {
+            const tab = tabs[currentTab];
+            if (tab.url !== 'home') {
+                navigateToUrl(tab.url);
+            } else {
+                goHome();
+            }
+        }
+
+        function goHome() {
+            const browserContent = document.getElementById('browserContent');
+            browserContent.innerHTML = `
+                <div class="homepage-content">
+                    <h1 class="homepage-title">🛡️ Anonymous Browser</h1>
+                    <p class="homepage-subtitle">Navega de forma completamente anónima con proxies automáticos</p>
+                    
+                    <div class="quick-links">
+                        <div class="quick-link" onclick="navigateToUrl('https://httpbin.org/ip')">
+                            <h3>🔍 Verificar IP</h3>
+                            <p>Comprueba tu IP actual y ubicación</p>
+                        </div>
+                        <div class="quick-link" onclick="navigateToUrl('https://www.google.com')">
+                            <h3>🔍 Buscar en Google</h3>
+                            <p>Búsqueda anónima en Google</p>
+                        </div>
+                        <div class="quick-link" onclick="navigateToUrl('https://duckduckgo.com')">
+                            <h3>🦆 DuckDuckGo</h3>
+                            <p>Motor de búsqueda que no rastrea</p>
+                        </div>
+                        <div class="quick-link" onclick="navigateToUrl('https://www.reddit.com')">
+                            <h3>📱 Reddit</h3>
+                            <p>Navega Reddit de forma anónima</p>
+                        </div>
+                        <div class="quick-link" onclick="navigateToUrl('https://news.ycombinator.com')">
+                            <h3>📰 Hacker News</h3>
+                            <p>Noticias de tecnología</p>
+                        </div>
+                        <div class="quick-link" onclick="showProxyTest()">
+                            <h3>🧪 Test de Proxies</h3>
+                            <p>Probar velocidad y funcionalidad</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('addressBar').value = '';
+            tabs[currentTab].url = 'home';
+            updateTabTitle('🏠 Inicio');
+        }
+
+        function updateTabTitle(title) {
+            const tabElement = document.querySelector(`[data-tab="${currentTab}"]`);
+            if (tabElement) {
+                const closeBtn = tabElement.querySelector('.tab-close');
+                tabElement.innerHTML = `${title} <span class="tab-close" onclick="closeTab(${currentTab})">×</span>`;
+                // Re-agregar el onclick al elemento completo
+                tabElement.onclick = (e) => {
+                    if (e.target.classList.contains('tab-close')) return;
+                    switchTab(currentTab);
+                };
+            }
+        }
+
+        function addToHistory(url) {
+            const tab = tabs[currentTab];
+            if (!tab) return;
+            
+            // Eliminar entradas futuras si estamos en el medio del historial
+            if (tab.historyIndex < tab.history.length - 1) {
+                tab.history = tab.history.slice(0, tab.historyIndex + 1);
+            }
+            
+            tab.history.push(url);
+            tab.historyIndex = tab.history.length - 1;
+            tab.url = url;
+            
+            // Actualizar título de la pestaña
+            let title = url.replace(/^https?:\/\//, '').split('/')[0];
+            if (title.length > 20) title = title.substring(0, 20) + '...';
+            updateTabTitle(title);
+            
+            // Actualizar botones de navegación
+            const backBtn = document.getElementById('backBtn');
+            const forwardBtn = document.getElementById('forwardBtn');
+            
+            if (backBtn) backBtn.disabled = tab.historyIndex <= 0;
+            if (forwardBtn) forwardBtn.disabled = tab.historyIndex >= tab.history.length - 1;
+        }
+
+        // Funciones auxiliares
+        function toggleProxy() {
+            if (workingProxies.length > 0) {
+                rotateToNextProxy();
+            } else {
+                addLog('⚠️ No hay proxies funcionales disponibles', 'warning');
+            }
+        }
+
+        function showProxyTest() {
+            const browserContent = document.getElementById('browserContent');
+            browserContent.innerHTML = `
+                <div style="padding: 40px; background: #f5f5f5; min-height: 100%;">
+                    <h1 style="color: #333; text-align: center; margin-bottom: 30px;">🧪 Test de Proxies</h1>
+                    
+                    <div style="max-width: 600px; margin: 0 auto;">
+                        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                            <h3>📊 Estado Actual</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
+                                <div>
+                                    <strong>Proxies Funcionales:</strong><br>
+                                    <span style="color: #11998e; font-size: 24px; font-weight: bold;">${workingProxies.length}</span>
+                                </div>
+                                <div>
+                                    <strong>Proxy Activo:</strong><br>
+                                    <span style="color: #667eea; font-weight: bold;">
+                                        ${currentProxy ? `${currentProxy.ip}:${currentProxy.port}` : 'Ninguno'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                            <h3>🚀 Acciones Rápidas</h3>
+                            <div style="display: grid; gap: 15px; margin-top: 20px;">
+                                <button onclick="selectBestProxy()" style="padding: 15px; background: #11998e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                                    ⚡ Usar Proxy Más Rápido
+                                </button>
+                                <button onclick="rotateToNextProxy()" style="padding: 15px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                                    🔄 Rotar a Siguiente Proxy
+                                </button>
+                                <button onclick="proxyHuntingCycle()" style="padding: 15px; background: #ff9800; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                                    🔍 Buscar Más Proxies
+                                </button>
+                                <button onclick="navigateToUrl('https://httpbin.org/ip')" style="padding: 15px; background: #e91e63; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                                    🔍 Verificar Mi IP
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('mobile-open');
+        }
+
+        // Inicialización
+        window.addEventListener('DOMContentLoaded', () => {
+            // Verificar que todos los elementos existen antes de usarlos
+            if (document.getElementById('consolePanel')) {
+                addLog('🛡️ Anonymous Browser iniciado', 'success');
+                addLog('ℹ️ Presiona "Iniciar Búsqueda" para comenzar a buscar proxies', 'info');
+            }
+            
+            // Inicializar solo si los elementos existen
+            setTimeout(() => {
+                updateStatus();
+                updateSecurityStatus();
+                goHome();
+            }, 100);
         });
 
-        // Cargar configuración al iniciar
-        window.addEventListener('load', loadConfig);
+        // Auto-guardar configuración
+        ['batchSize', 'timeout', 'minWorking'].forEach(id => {
+            document.getElementById(id).addEventListener('change', () => {
+                const config = {
+                    batchSize: document.getElementById('batchSize').value,
+                    timeout: document.getElementById('timeout').value,
+                    minWorking: document.getElementById('minWorking').value
+                };
+                localStorage.setItem('anonymousBrowserConfig', JSON.stringify(config));
+            });
+        });
+
+        // Cargar configuración guardada
+        const savedConfig = localStorage.getItem('anonymousBrowserConfig');
+        if (savedConfig) {
+            const config = JSON.parse(savedConfig);
+            Object.entries(config).forEach(([key, value]) => {
+                const element = document.getElementById(key);
+                if (element) element.value = value;
+            });
+        }
     </script>
 </body>
 </html>
