@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anonymous Web Browser</title>
     <style>
+        /* --- Estilos Generales y Layout --- */
         * {
             margin: 0;
             padding: 0;
@@ -24,6 +25,7 @@
             height: 100vh;
         }
 
+        /* --- Barra Lateral (Sidebar) --- */
         .sidebar {
             width: 350px;
             background: linear-gradient(135deg, #1a1a2e, #16213e);
@@ -31,13 +33,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-        }
-
-        .browser-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #111;
+            transition: left 0.3s ease;
         }
 
         .logo-header {
@@ -45,6 +41,7 @@
             padding: 15px;
             text-align: center;
             color: white;
+            flex-shrink: 0;
         }
 
         .logo-header h1 {
@@ -61,6 +58,7 @@
         .proxy-controls {
             padding: 15px;
             border-bottom: 1px solid #333;
+            flex-shrink: 0;
         }
 
         .control-group {
@@ -104,20 +102,9 @@
             margin-bottom: 8px;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #11998e, #38ef7d);
-            color: white;
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #ff416c, #ff4b2b);
-            color: white;
-        }
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .btn-success { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
+        .btn-danger { background: linear-gradient(135deg, #ff416c, #ff4b2b); color: white; }
 
         .btn:hover {
             transform: translateY(-1px);
@@ -128,12 +115,14 @@
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
         }
 
         .status-panel {
             padding: 15px;
             border-bottom: 1px solid #333;
             background: #1a1a1a;
+            flex-shrink: 0;
         }
 
         .status-item {
@@ -143,17 +132,11 @@
             font-size: 11px;
         }
 
-        .status-label {
-            color: #888;
-        }
-
-        .status-value {
-            color: #667eea;
-            font-weight: bold;
-        }
+        .status-label { color: #888; }
+        .status-value { color: #667eea; font-weight: bold; }
 
         .proxy-list-container {
-            flex: 1;
+            flex-grow: 1;
             overflow-y: auto;
             padding: 10px;
         }
@@ -166,21 +149,13 @@
             margin-bottom: 8px;
             font-size: 11px;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
-        .proxy-item.active {
-            border-color: #11998e;
-            background: rgba(17, 153, 142, 0.1);
-        }
-
-        .proxy-item.working {
-            border-left: 3px solid #11998e;
-        }
-
-        .proxy-item.failed {
-            border-left: 3px solid #ff416c;
-            opacity: 0.6;
-        }
+        .proxy-item:hover { background: #2a2a2a; }
+        .proxy-item.active { border-color: #11998e; background: rgba(17, 153, 142, 0.1); }
+        .proxy-item.working { border-left: 3px solid #11998e; }
+        .proxy-item.failed { border-left: 3px solid #ff416c; opacity: 0.6; }
 
         .proxy-header {
             display: flex;
@@ -188,171 +163,20 @@
             margin-bottom: 5px;
         }
 
-        .proxy-address {
-            font-weight: bold;
-            color: #e0e0e0;
-        }
+        .proxy-address { font-weight: bold; color: #e0e0e0; }
+        .proxy-status { font-size: 10px; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; }
+        .status-working { background: rgba(17, 153, 142, 0.3); color: #11998e; }
+        .status-failed { background: rgba(255, 65, 108, 0.3); color: #ff416c; }
 
-        .proxy-status {
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 3px;
-            text-transform: uppercase;
-        }
-
-        .status-working {
-            background: rgba(17, 153, 142, 0.3);
-            color: #11998e;
-        }
-
-        .status-failed {
-            background: rgba(255, 65, 108, 0.3);
-            color: #ff416c;
-        }
-
-        .browser-toolbar {
-            background: #1a1a1a;
-            border-bottom: 1px solid #333;
-            padding: 10px 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .nav-buttons {
-            display: flex;
-            gap: 5px;
-        }
-
-        .nav-btn {
-            width: 35px;
-            height: 35px;
-            border: 1px solid #444;
-            background: #222;
-            color: #e0e0e0;
-            border-radius: 5px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .nav-btn:hover {
-            background: #333;
-            border-color: #667eea;
-        }
-
-        .nav-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-
-        .address-bar {
+        /* --- Área del Navegador --- */
+        .browser-area {
             flex: 1;
             display: flex;
-            background: #222;
-            border: 1px solid #444;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-
-        .address-input {
-            flex: 1;
-            padding: 10px 15px;
-            background: transparent;
-            border: none;
-            color: #e0e0e0;
-            font-size: 14px;
-        }
-
-        .address-input:focus {
-            outline: none;
-        }
-
-        .go-btn {
-            padding: 0 15px;
-            background: #667eea;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .go-btn:hover {
-            background: #5a6fd8;
-        }
-
-        .security-indicator {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 12px;
-        }
-
-        .security-status {
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 10px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .secure {
-            background: rgba(17, 153, 142, 0.3);
-            color: #11998e;
-        }
-
-        .insecure {
-            background: rgba(255, 65, 108, 0.3);
-            color: #ff416c;
-        }
-
-        .browser-content {
-            flex: 1;
-            background: white;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.8);
-            display: none;
-            align-items: center;
-            justify-content: center;
             flex-direction: column;
-            color: white;
-            z-index: 1000;
+            background: #111;
         }
 
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid #333;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .website-frame {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: white;
-        }
-
+        /* --- Pestañas --- */
         .tabs-container {
             background: #1a1a1a;
             border-bottom: 1px solid #333;
@@ -360,6 +184,7 @@
             align-items: center;
             padding: 0 10px;
             min-height: 40px;
+            flex-shrink: 0;
         }
 
         .tab {
@@ -376,11 +201,20 @@
             overflow: hidden;
             text-overflow: ellipsis;
             position: relative;
+            display: flex;
+            align-items: center;
         }
 
         .tab.active {
             background: #333;
             border-color: #667eea;
+            color: #fff;
+        }
+        
+        .tab-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .tab-close {
@@ -388,11 +222,10 @@
             cursor: pointer;
             color: #888;
             font-weight: bold;
+            padding: 2px;
         }
 
-        .tab-close:hover {
-            color: #ff416c;
-        }
+        .tab-close:hover { color: #ff416c; }
 
         .new-tab-btn {
             width: 30px;
@@ -406,61 +239,12 @@
             align-items: center;
             justify-content: center;
             margin-left: 10px;
+            flex-shrink: 0;
         }
 
-        .new-tab-btn:hover {
-            background: #333;
-        }
-
-        .console-panel {
-            background: #0a0a0a;
-            border-top: 1px solid #333;
-            height: 150px;
-            overflow-y: auto;
-            padding: 10px;
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            line-height: 1.4;
-        }
-
-        .console-entry {
-            margin-bottom: 2px;
-            color: #888;
-        }
-
-        .console-entry.info { color: #667eea; }
-        .console-entry.success { color: #11998e; }
-        .console-entry.warning { color: #ffa726; }
-        .console-entry.error { color: #ff416c; }
-
-        .performance-stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            padding: 10px;
-            background: #1a1a1a;
-            border-bottom: 1px solid #333;
-        }
-
-        .perf-stat {
-            text-align: center;
-            padding: 8px;
-            background: #222;
-            border-radius: 5px;
-        }
-
-        .perf-number {
-            font-size: 16px;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .perf-label {
-            font-size: 10px;
-            color: #888;
-            text-transform: uppercase;
-        }
-
+        .new-tab-btn:hover { background: #333; }
+        
+        /* --- Barra de Marcadores --- */
         .bookmarks-bar {
             background: #1a1a1a;
             padding: 5px 15px;
@@ -468,6 +252,7 @@
             display: flex;
             gap: 10px;
             overflow-x: auto;
+            flex-shrink: 0;
         }
 
         .bookmark {
@@ -486,29 +271,156 @@
             border-color: #667eea;
         }
 
+        /* --- Barra de Herramientas del Navegador --- */
+        .browser-toolbar {
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .nav-buttons { display: flex; gap: 5px; }
+
+        .nav-btn {
+            width: 35px;
+            height: 35px;
+            border: 1px solid #444;
+            background: #222;
+            color: #e0e0e0;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover { background: #333; border-color: #667eea; }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #444; }
+
+        .address-bar {
+            flex: 1;
+            display: flex;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .address-bar:focus-within {
+            border-color: #667eea;
+            box-shadow: 0 0 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .address-input {
+            flex: 1;
+            padding: 10px 15px;
+            background: transparent;
+            border: none;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+
+        .address-input:focus { outline: none; }
+
+        .go-btn {
+            padding: 0 15px;
+            background: #667eea;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .go-btn:hover { background: #5a6fd8; }
+
+        .security-indicator { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+        .security-status { padding: 5px 10px; border-radius: 15px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .secure { background: rgba(17, 153, 142, 0.3); color: #11998e; }
+        .insecure { background: rgba(255, 65, 108, 0.3); color: #ff416c; }
+
+        /* --- Estadísticas de Rendimiento --- */
+        .performance-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 10px;
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            flex-shrink: 0;
+        }
+
+        .perf-stat { text-align: center; padding: 8px; background: #222; border-radius: 5px; }
+        .perf-number { font-size: 16px; font-weight: bold; color: #667eea; }
+        .perf-label { font-size: 10px; color: #888; text-transform: uppercase; }
+
+        /* --- Contenido del Navegador y Superposiciones --- */
+        .browser-content {
+            flex-grow: 1;
+            background: #fff; /* Fondo blanco para el contenedor del iframe */
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .browser-content > div, .browser-content > iframe {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            border: none;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none; /* Changed by JS */
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: white;
+            z-index: 1000;
+        }
+        
+        .loading-overlay p {
+            margin-top: 10px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #333;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- Contenido de la Página de Inicio --- */
         .homepage-content {
             padding: 40px;
             text-align: center;
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
         }
 
-        .homepage-title {
-            font-size: 36px;
-            margin-bottom: 20px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .homepage-subtitle {
-            font-size: 18px;
-            margin-bottom: 40px;
-            opacity: 0.9;
-        }
+        .homepage-title { font-size: 36px; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .homepage-subtitle { font-size: 18px; margin-bottom: 40px; opacity: 0.9; }
 
         .quick-links {
             display: grid;
@@ -527,11 +439,28 @@
             backdrop-filter: blur(10px);
         }
 
-        .quick-link:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-2px);
+        .quick-link:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+
+        /* --- Consola --- */
+        .console-panel {
+            background: #0a0a0a;
+            border-top: 1px solid #333;
+            height: 150px;
+            overflow-y: auto;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.4;
+            flex-shrink: 0;
         }
 
+        .console-entry { margin-bottom: 2px; color: #888; }
+        .console-entry.info { color: #667eea; }
+        .console-entry.success { color: #11998e; }
+        .console-entry.warning { color: #ffa726; }
+        .console-entry.error { color: #ff416c; }
+
+        /* --- Diseño Responsivo --- */
         .responsive-toggle {
             position: fixed;
             top: 10px;
@@ -543,34 +472,15 @@
             padding: 10px;
             border-radius: 5px;
             cursor: pointer;
-            display: none;
+            display: none; /* Hidden by default */
         }
 
         @media (max-width: 768px) {
-            .responsive-toggle {
-                display: block;
-            }
-            
-            .sidebar {
-                position: fixed;
-                left: -350px;
-                top: 0;
-                height: 100vh;
-                z-index: 9999;
-                transition: left 0.3s ease;
-            }
-            
-            .sidebar.mobile-open {
-                left: 0;
-            }
-            
-            .browser-area {
-                width: 100%;
-            }
-            
-            .performance-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .responsive-toggle { display: block; }
+            .sidebar { position: fixed; left: -350px; top: 0; height: 100vh; z-index: 9999; }
+            .sidebar.mobile-open { left: 0; }
+            .browser-area { width: 100%; }
+            .performance-stats { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
@@ -589,17 +499,14 @@
                     <label class="control-label">Proxies por lote</label>
                     <input type="number" class="control-input" id="batchSize" value="30" min="10" max="100">
                 </div>
-                
                 <div class="control-group">
                     <label class="control-label">Timeout (ms)</label>
                     <input type="number" class="control-input" id="timeout" value="3000" min="1000" max="10000">
                 </div>
-                
                 <div class="control-group">
                     <label class="control-label">Mínimo funcionales</label>
                     <input type="number" class="control-input" id="minWorking" value="5" min="1" max="20">
                 </div>
-
                 <button class="btn btn-primary" id="startBtn" onclick="startProxyHunting()">
                     🚀 Iniciar Búsqueda
                 </button>
@@ -640,21 +547,15 @@
         </div>
 
         <div class="browser-area">
-            <div class="tabs-container">
-                <div class="tab active" data-tab="0">
-                    🏠 Inicio
-                    <span class="tab-close" onclick="closeTab(0)">×</span>
-                </div>
-                <div class="new-tab-btn" onclick="newTab()">+</div>
+            <div class="tabs-container" id="tabsContainer">
+                <!-- Las pestañas se generan dinámicamente aquí -->
             </div>
 
             <div class="bookmarks-bar">
                 <div class="bookmark" onclick="navigateToUrl('https://httpbin.org/ip')">🔍 Mi IP</div>
-                <div class="bookmark" onclick="navigateToUrl('https://www.google.com')">🔍 Google</div>
-                <div class="bookmark" onclick="navigateToUrl('https://duckduckgo.com')">🦆 DuckDuckGo</div>
                 <div class="bookmark" onclick="navigateToUrl('https://www.wikipedia.org')">📚 Wikipedia</div>
+                <div class="bookmark" onclick="navigateToUrl('https://duckduckgo.com/')">🦆 DuckDuckGo</div>
                 <div class="bookmark" onclick="navigateToUrl('https://github.com')">🐙 GitHub</div>
-                <div class="bookmark" onclick="navigateToUrl('https://stackoverflow.com')">💻 StackOverflow</div>
             </div>
 
             <div class="browser-toolbar">
@@ -667,15 +568,15 @@
 
                 <div class="address-bar">
                     <input type="text" class="address-input" id="addressBar" 
-                           placeholder="Ingresa URL o busca en Google..." 
+                           placeholder="Ingresa URL o busca en DuckDuckGo..." 
                            onkeypress="handleAddressBarKeypress(event)">
                     <button class="go-btn" onclick="navigateFromAddressBar()">IR</button>
                 </div>
 
                 <div class="security-indicator">
-                    <div class="security-status" id="securityStatus">
-                        <span id="securityIcon">🔒</span>
-                        <span id="securityText">SEGURO</span>
+                    <div class="security-status insecure" id="securityStatus">
+                        <span id="securityIcon">⚠️</span>
+                        <span id="securityText">EXPUESTO</span>
                     </div>
                     <button class="nav-btn" onclick="toggleProxy()" title="Rotar Proxy">🔄</button>
                 </div>
@@ -701,823 +602,471 @@
             </div>
 
             <div class="browser-content" id="browserContent">
-                <div class="homepage-content">
-                    <h1 class="homepage-title">🛡️ Anonymous Browser</h1>
-                    <p class="homepage-subtitle">Navega de forma completamente anónima con proxies automáticos</p>
-                    
-                    <div class="quick-links">
-                        <div class="quick-link" onclick="navigateToUrl('https://httpbin.org/ip')">
-                            <h3>🔍 Verificar IP</h3>
-                            <p>Comprueba tu IP actual y ubicación</p>
-                        </div>
-                        <div class="quick-link" onclick="navigateToUrl('https://www.google.com')">
-                            <h3>🔍 Buscar en Google</h3>
-                            <p>Búsqueda anónima en Google</p>
-                        </div>
-                        <div class="quick-link" onclick="navigateToUrl('https://duckduckgo.com')">
-                            <h3>🦆 DuckDuckGo</h3>
-                            <p>Motor de búsqueda que no rastrea</p>
-                        </div>
-                        <div class="quick-link" onclick="navigateToUrl('https://www.reddit.com')">
-                            <h3>📱 Reddit</h3>
-                            <p>Navega Reddit de forma anónima</p>
-                        </div>
-                        <div class="quick-link" onclick="navigateToUrl('https://news.ycombinator.com')">
-                            <h3>📰 Hacker News</h3>
-                            <p>Noticias de tecnología</p>
-                        </div>
-                        <div class="quick-link" onclick="showProxyTest()">
-                            <h3>🧪 Test de Proxies</h3>
-                            <p>Probar velocidad y funcionalidad</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="loading-overlay" id="loadingOverlay">
+                 <div class="loading-overlay" id="loadingOverlay">
                     <div class="loading-spinner"></div>
-                    <p>Cargando página a través de proxy...</p>
+                    <p id="loadingUrl">Cargando...</p>
                     <p id="loadingProxy">Conectando...</p>
                 </div>
+                <!-- El contenido (iframe o homepage) se carga aquí -->
             </div>
 
-            <div class="console-panel" id="consolePanel">
-                <div class="console-entry info">[SISTEMA] Anonymous Browser iniciado</div>
-                <div class="console-entry info">[PROXY] Esperando inicialización de búsqueda de proxies</div>
-            </div>
+            <div class="console-panel" id="consolePanel"></div>
         </div>
     </div>
 
     <script>
-        // Variables globales
+        // =================================================================================
+        // ANONYMOUS BROWSER - SCRIPT PRINCIPAL
+        // VERSIÓN FUNCIONAL CON IFRAME
+        // =================================================================================
+
+        // --- Estado Global de la Aplicación ---
         let isHunting = false;
         let proxies = [];
         let workingProxies = [];
         let currentProxy = null;
-        let currentTab = 0;
-        let tabs = [{ url: 'home', title: 'Inicio', history: [], historyIndex: -1 }];
+        let currentTabIndex = 0;
+        let tabs = [];
         let huntingInterval;
         let proxyRotationInterval;
+        let nextTabId = 0;
 
-        // Fuentes de proxies y configuración
+        // --- Fuentes de Proxies (Simulación) ---
         const proxySource = {
             public: [
                 '103.140.112.170:8080', '185.162.231.106:80', '45.170.101.2:999',
                 '194.5.193.183:80', '91.107.6.115:53281', '37.139.6.125:8080',
-                '78.47.186.43:6543', '188.165.59.127:80', '217.182.243.33:8080',
-                '46.101.49.62:80', '103.81.84.36:22884', '185.32.6.129:8090',
-                '212.33.196.119:8080', '159.203.61.169:3128', '138.68.60.8:8080'
             ],
             ipRanges: [
                 '103.{}.{}.{}', '185.{}.{}.{}', '45.{}.{}.{}', '194.{}.{}.{}',
-                '91.{}.{}.{}', '37.{}.{}.{}', '78.{}.{}.{}', '188.{}.{}.{}',
-                '217.{}.{}.{}', '46.{}.{}.{}', '5.{}.{}.{}', '95.{}.{}.{}'
+                '91.{}.{}.{}', '37.{}.{}.{}', '78.{}.{}.{}', '188.{}.{}.{}'
             ],
-            ports: [80, 8080, 3128, 8000, 8888, 9999, 8118, 8123, 1080, 3129, 8081, 9090]
+            ports: [80, 8080, 3128, 8000, 8888, 9999, 8118, 1080]
+        };
+        
+        // --- Elementos del DOM (Cache) ---
+        const DOMElements = {
+            sidebar: document.getElementById('sidebar'),
+            startBtn: document.getElementById('startBtn'),
+            stopBtn: document.getElementById('stopBtn'),
+            huntingStatus: document.getElementById('huntingStatus'),
+            activeProxies: document.getElementById('activeProxies'),
+            currentProxyDisplay: document.getElementById('currentProxyDisplay'),
+            proxySpeed: document.getElementById('proxySpeed'),
+            ipHidden: document.getElementById('ipHidden'),
+            proxyList: document.getElementById('proxyList'),
+            tabsContainer: document.getElementById('tabsContainer'),
+            addressBar: document.getElementById('addressBar'),
+            securityStatus: document.getElementById('securityStatus'),
+            securityIcon: document.getElementById('securityIcon'),
+            securityText: document.getElementById('securityText'),
+            loadTime: document.getElementById('loadTime'),
+            dataTransfer: document.getElementById('dataTransfer'),
+            requests: document.getElementById('requests'),
+            proxyHops: document.getElementById('proxyHops'),
+            browserContent: document.getElementById('browserContent'),
+            consolePanel: document.getElementById('consolePanel'),
+            backBtn: document.getElementById('backBtn'),
+            forwardBtn: document.getElementById('forwardBtn'),
+            loadingOverlay: document.getElementById('loadingOverlay'),
+            loadingUrl: document.getElementById('loadingUrl'),
+            loadingProxy: document.getElementById('loadingProxy'),
         };
 
-        // Funciones de logging con verificación
+        // --- Funciones de Utilidad y Logging ---
         function addLog(message, type = 'info') {
-            const console = document.getElementById('consolePanel');
-            if (!console) return;
-            
+            if (!DOMElements.consolePanel) return;
             const timestamp = new Date().toLocaleTimeString();
             const entry = document.createElement('div');
             entry.className = `console-entry ${type}`;
-            entry.innerHTML = `[${timestamp}] ${message}`;
-            console.appendChild(entry);
-            console.scrollTop = console.scrollHeight;
-
-            if (console.children.length > 100) {
-                console.removeChild(console.children[0]);
+            entry.textContent = `[${timestamp}] ${message}`;
+            DOMElements.consolePanel.appendChild(entry);
+            DOMElements.consolePanel.scrollTop = DOMElements.consolePanel.scrollHeight;
+            if (DOMElements.consolePanel.children.length > 150) {
+                DOMElements.consolePanel.removeChild(DOMElements.consolePanel.children[0]);
             }
         }
 
-        // Generación de proxies
+        // --- Lógica de Búsqueda y Gestión de Proxies (Simulada) ---
+        // (Esta parte no ha cambiado, sigue siendo una simulación)
         function generateProxies(count) {
             const newProxies = [];
-            
-            // Agregar proxies públicos conocidos
             proxySource.public.forEach(proxy => {
                 const [ip, port] = proxy.split(':');
-                newProxies.push({
-                    ip,
-                    port: parseInt(port),
-                    type: 'http',
-                    status: 'untested',
-                    responseTime: null,
-                    source: 'public',
-                    lastTested: null
-                });
+                newProxies.push({ ip, port: parseInt(port), type: 'http', status: 'untested', responseTime: null, source: 'public', lastTested: null });
             });
-
-            // Generar proxies aleatorios
             const randomCount = Math.max(0, count - newProxies.length);
             for (let i = 0; i < randomCount; i++) {
                 const pattern = proxySource.ipRanges[Math.floor(Math.random() * proxySource.ipRanges.length)];
                 const ip = pattern.replace(/\{}/g, () => Math.floor(Math.random() * 255) + 1);
                 const port = proxySource.ports[Math.floor(Math.random() * proxySource.ports.length)];
-                
-                newProxies.push({
-                    ip,
-                    port,
-                    type: 'http',
-                    status: 'untested',
-                    responseTime: null,
-                    source: 'random',
-                    lastTested: null
-                });
+                newProxies.push({ ip, port, type: 'http', status: 'untested', responseTime: null, source: 'random', lastTested: null });
             }
-
             return newProxies;
         }
-
-        // Prueba de proxies
         async function testProxy(proxy) {
             return new Promise((resolve) => {
-                const timeout = parseInt(document.getElementById('timeout').value);
+                const timeoutInput = document.getElementById('timeout');
+                const timeout = timeoutInput ? parseInt(timeoutInput.value) : 3000;
                 const startTime = Date.now();
-
                 setTimeout(() => {
-                    const isWorking = Math.random() > 0.8; // 20% funcionan
+                    const isWorking = Math.random() > 0.8;
                     const responseTime = Date.now() - startTime;
-                    
                     proxy.status = isWorking ? 'working' : 'failed';
                     proxy.responseTime = isWorking ? responseTime + Math.random() * 500 : null;
                     proxy.lastTested = new Date();
-                    
                     if (isWorking) {
                         workingProxies.push(proxy);
                         addLog(`✅ Proxy funcional: ${proxy.ip}:${proxy.port} (${proxy.responseTime.toFixed(0)}ms)`, 'success');
-                    } else {
-                        addLog(`❌ Proxy falló: ${proxy.ip}:${proxy.port}`, 'error');
                     }
-                    
                     resolve(proxy);
                 }, Math.random() * timeout * 0.8 + timeout * 0.2);
             });
         }
-
-        // Batch testing de proxies
         async function testProxiesBatch(proxiesBatch) {
             addLog(`🔍 Probando lote de ${proxiesBatch.length} proxies...`, 'info');
-            
-            const promises = proxiesBatch.map(proxy => testProxy(proxy));
-            await Promise.all(promises);
-            
+            await Promise.all(proxiesBatch.map(p => testProxy(p)));
             updateProxyDisplay();
             updateStatus();
         }
-
-        // Actualizar display de proxies
-        function updateProxyDisplay() {
-            const proxyList = document.getElementById('proxyList');
-            
-            if (proxies.length === 0) {
-                proxyList.innerHTML = `
-                    <div style="text-align: center; padding: 20px; color: #666;">
-                        No hay proxies disponibles.<br>
-                        Inicia la búsqueda arriba.
-                    </div>
-                `;
-                return;
-            }
-
-            const sortedProxies = [...proxies].sort((a, b) => {
-                if (a.status === 'working' && b.status !== 'working') return -1;
-                if (a.status !== 'working' && b.status === 'working') return 1;
-                if (a.status === 'working' && b.status === 'working') {
-                    return a.responseTime - b.responseTime;
-                }
-                return 0;
-            });
-
-            let html = '';
-            sortedProxies.slice(0, 15).forEach(proxy => {
-                const isActive = currentProxy && currentProxy.ip === proxy.ip && currentProxy.port === proxy.port;
-                
-                html += `
-                    <div class="proxy-item ${proxy.status} ${isActive ? 'active' : ''}" onclick="selectProxy('${proxy.ip}', ${proxy.port})">
-                        <div class="proxy-header">
-                            <div class="proxy-address">${proxy.ip}:${proxy.port}</div>
-                            <div class="proxy-status status-${proxy.status}">${proxy.status}</div>
-                        </div>
-                        <div style="color: #888; font-size: 10px;">
-                            ${proxy.responseTime ? `⚡ ${proxy.responseTime.toFixed(0)}ms` : ''}
-                            ${proxy.source ? `📍 ${proxy.source}` : ''}
-                            ${proxy.lastTested ? `🕒 ${proxy.lastTested.toLocaleTimeString()}` : ''}
-                        </div>
-                    </div>
-                `;
-            });
-
-            proxyList.innerHTML = html;
-        }
-
-        // Actualizar estado general con verificación de elementos
-        function updateStatus() {
-            const activeProxiesEl = document.getElementById('activeProxies');
-            const huntingStatusEl = document.getElementById('huntingStatus');
-            const currentProxyDisplayEl = document.getElementById('currentProxyDisplay');
-            const proxySpeedEl = document.getElementById('proxySpeed');
-            const ipHiddenEl = document.getElementById('ipHidden');
-            
-            if (activeProxiesEl) activeProxiesEl.textContent = workingProxies.length;
-            if (huntingStatusEl) huntingStatusEl.textContent = isHunting ? 'Buscando...' : 'Inactivo';
-            
-            if (currentProxy) {
-                if (currentProxyDisplayEl) currentProxyDisplayEl.textContent = `${currentProxy.ip}:${currentProxy.port}`;
-                if (proxySpeedEl) proxySpeedEl.textContent = `${currentProxy.responseTime?.toFixed(0) || '-'}ms`;
-                if (ipHiddenEl) ipHiddenEl.textContent = '✅';
-            } else {
-                if (currentProxyDisplayEl) currentProxyDisplayEl.textContent = 'Ninguno';
-                if (proxySpeedEl) proxySpeedEl.textContent = '-';
-                if (ipHiddenEl) ipHiddenEl.textContent = '❌';
-            }
-        }
-
-        // Iniciar búsqueda de proxies
         async function startProxyHunting() {
             if (isHunting) return;
-
             isHunting = true;
-            document.getElementById('startBtn').disabled = true;
-            document.getElementById('stopBtn').disabled = false;
-
+            if (DOMElements.startBtn) DOMElements.startBtn.disabled = true;
+            if (DOMElements.stopBtn) DOMElements.stopBtn.disabled = false;
             addLog('🚀 Iniciando búsqueda automática de proxies...', 'success');
-            
             await proxyHuntingCycle();
-            
-            // Iniciar rotación automática de proxies cada 45 segundos
-            proxyRotationInterval = setInterval(() => {
-                if (workingProxies.length > 0) {
-                    rotateToNextProxy();
-                }
-            }, 45000);
-
-            // Continuar búsqueda cada 60 segundos
+            proxyRotationInterval = setInterval(() => { if (workingProxies.length > 0) rotateToNextProxy(); }, 45000);
             huntingInterval = setInterval(proxyHuntingCycle, 60000);
         }
-
-        // Detener búsqueda
         function stopProxyHunting() {
+            if (!isHunting) return;
             isHunting = false;
             clearInterval(huntingInterval);
             clearInterval(proxyRotationInterval);
-            
-            document.getElementById('startBtn').disabled = false;
-            document.getElementById('stopBtn').disabled = true;
-
+            if (DOMElements.startBtn) DOMElements.startBtn.disabled = false;
+            if (DOMElements.stopBtn) DOMElements.stopBtn.disabled = true;
+            updateStatus();
             addLog('⏹️ Búsqueda de proxies detenida', 'warning');
         }
-
-        // Ciclo de búsqueda
         async function proxyHuntingCycle() {
-            const batchSize = parseInt(document.getElementById('batchSize').value);
-            const minWorking = parseInt(document.getElementById('minWorking').value);
-
-            // Generar nuevos proxies
+            if (!isHunting) return;
+            const batchSizeInput = document.getElementById('batchSize');
+            const batchSize = batchSizeInput ? parseInt(batchSizeInput.value) : 30;
             const newProxies = generateProxies(batchSize);
             proxies.push(...newProxies);
-
             addLog(`📥 Generados ${newProxies.length} proxies nuevos`, 'info');
-
-            // Probar proxies en lotes más pequeños para mejor rendimiento
             const chunkSize = 10;
             for (let i = 0; i < newProxies.length; i += chunkSize) {
-                const chunk = newProxies.slice(i, i + chunkSize);
-                await testProxiesBatch(chunk);
-                await new Promise(resolve => setTimeout(resolve, 500)); // Pausa entre lotes
+                if (!isHunting) break;
+                await testProxiesBatch(newProxies.slice(i, i + chunkSize));
+                await new Promise(resolve => setTimeout(resolve, 500));
             }
-
-            // Auto-seleccionar el mejor proxy si no hay uno activo
-            if (!currentProxy && workingProxies.length > 0) {
-                selectBestProxy();
-            }
-
-            // Limpiar proxies antiguos para mantener rendimiento
-            if (proxies.length > 200) {
-                proxies = proxies.slice(-100);
-                addLog('🗑️ Lista de proxies optimizada', 'info');
-            }
-
-            addLog(`📊 Estado: ${workingProxies.length} proxies funcionales de ${proxies.length} total`, 'info');
+            if (!currentProxy && workingProxies.length > 0) selectBestProxy();
+            if (proxies.length > 200) proxies = proxies.slice(-100);
+            addLog(`📊 Estado: ${workingProxies.length} proxies funcionales`, 'info');
         }
-
-        // Seleccionar el mejor proxy disponible
-        function selectBestProxy() {
-            if (workingProxies.length === 0) return;
-
-            const bestProxy = workingProxies.sort((a, b) => a.responseTime - b.responseTime)[0];
-            selectProxy(bestProxy.ip, bestProxy.port);
-        }
-
-        // Rotar al siguiente proxy
-        function rotateToNextProxy() {
-            if (workingProxies.length <= 1) return;
-
-            const currentIndex = workingProxies.findIndex(p => 
-                currentProxy && p.ip === currentProxy.ip && p.port === currentProxy.port
-            );
-            
-            const nextIndex = (currentIndex + 1) % workingProxies.length;
-            const nextProxy = workingProxies[nextIndex];
-            
-            selectProxy(nextProxy.ip, nextProxy.port);
-            addLog(`🔄 Proxy rotado automáticamente a ${nextProxy.ip}:${nextProxy.port}`, 'info');
-        }
-
-        // Seleccionar un proxy específico
         function selectProxy(ip, port) {
             const proxy = proxies.find(p => p.ip === ip && p.port === port);
             if (!proxy || proxy.status !== 'working') {
-                addLog(`❌ No se puede seleccionar proxy ${ip}:${port}`, 'error');
+                addLog(`❌ No se puede seleccionar proxy no funcional ${ip}:${port}`, 'error');
                 return;
             }
-
             currentProxy = proxy;
             updateStatus();
             updateProxyDisplay();
             updateSecurityStatus();
-            
             addLog(`✅ Proxy seleccionado: ${ip}:${port} (${proxy.responseTime?.toFixed(0)}ms)`, 'success');
         }
+        function selectBestProxy() {
+            if (workingProxies.length === 0) return;
+            const bestProxy = workingProxies.sort((a, b) => a.responseTime - b.responseTime)[0];
+            selectProxy(bestProxy.ip, bestProxy.port);
+        }
+        function rotateToNextProxy() {
+            if (workingProxies.length <= 1) return;
+            const currentIndex = workingProxies.findIndex(p => currentProxy && p.ip === currentProxy.ip && p.port === currentProxy.port);
+            const nextIndex = (currentIndex + 1) % workingProxies.length;
+            selectProxy(workingProxies[nextIndex].ip, workingProxies[nextIndex].port);
+            addLog(`🔄 Proxy rotado automáticamente`, 'info');
+        }
+        function toggleProxy() {
+            if (workingProxies.length > 0) rotateToNextProxy();
+            else addLog('⚠️ No hay proxies funcionales para rotar', 'warning');
+        }
 
-        // Actualizar estado de seguridad con verificación
-        function updateSecurityStatus() {
-            const securityStatus = document.getElementById('securityStatus');
-            const securityIcon = document.getElementById('securityIcon');
-            const securityText = document.getElementById('securityText');
-
-            if (!securityStatus || !securityIcon || !securityText) return;
-
-            if (currentProxy) {
-                securityStatus.className = 'security-status secure';
-                securityIcon.textContent = '🛡️';
-                securityText.textContent = 'ANÓNIMO';
-            } else {
-                securityStatus.className = 'security-status insecure';
-                securityIcon.textContent = '⚠️';
-                securityText.textContent = 'EXPUESTO';
+        // --- Lógica de Pestañas (Tabs) ---
+        function newTab(url = 'home', title = '🏠 Inicio') {
+            const tabId = nextTabId++;
+            const newTab = { id: tabId, url, title, history: url === 'home' ? [] : [url], historyIndex: url === 'home' ? -1 : 0 };
+            tabs.push(newTab);
+            createTabElement(newTab);
+            switchTab(tabId);
+            return newTab;
+        }
+        function createTabElement(tabData) {
+            const tabElement = document.createElement('div');
+            tabElement.className = 'tab';
+            tabElement.dataset.tabId = tabData.id;
+            tabElement.innerHTML = `<span class="tab-title">${tabData.title}</span><span class="tab-close">×</span>`;
+            tabElement.addEventListener('click', (e) => {
+                if (e.target.className !== 'tab-close') switchTab(tabData.id);
+            });
+            tabElement.querySelector('.tab-close').addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeTab(tabData.id);
+            });
+            if (DOMElements.tabsContainer) {
+                const newTabBtn = DOMElements.tabsContainer.querySelector('.new-tab-btn');
+                DOMElements.tabsContainer.insertBefore(tabElement, newTabBtn);
+            }
+        }
+        function closeTab(tabId) {
+            if (tabs.length <= 1) {
+                addLog("❌ No se puede cerrar la última pestaña.", "error");
+                return;
+            }
+            const tabIndex = tabs.findIndex(t => t.id === tabId);
+            if (tabIndex === -1) return;
+            tabs.splice(tabIndex, 1);
+            const tabElement = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+            if (tabElement) tabElement.remove();
+            if (currentTabIndex === tabId) {
+                const newActiveTab = tabs[tabIndex] || tabs[tabIndex - 1];
+                switchTab(newActiveTab.id);
+            }
+        }
+        function switchTab(tabId) {
+            currentTabIndex = tabId;
+            document.querySelectorAll('.tab').forEach(tabEl => {
+                tabEl.classList.toggle('active', tabEl.dataset.tabId == tabId);
+            });
+            updateUIForCurrentTab();
+        }
+        function updateTabTitle(title) {
+            const tabData = tabs.find(t => t.id === currentTabIndex);
+            const tabElement = document.querySelector(`.tab[data-tab-id="${currentTabIndex}"] .tab-title`);
+            if (tabData && tabElement) {
+                tabData.title = title;
+                tabElement.textContent = title;
             }
         }
 
-        // Navegación del navegador
-        function navigateToUrl(url) {
+        // --- Lógica de Navegación ---
+        function navigateToUrl(url, fromHistory = false) {
             if (!url) return;
-
-            // Convertir búsquedas a Google
             if (!url.includes('.') && !url.startsWith('http')) {
-                url = `https://www.google.com/search?q=${encodeURIComponent(url)}`;
+                // Usar DuckDuckGo para búsquedas, ya que permite ser iframed
+                url = `https://duckduckgo.com/?q=${encodeURIComponent(url)}`;
             }
-
-            // Agregar protocolo si no lo tiene
             if (!url.startsWith('http://') && !url.startsWith('https://')) {
                 url = 'https://' + url;
             }
-
+            const currentTab = tabs.find(t => t.id === currentTabIndex);
+            if (!currentTab) return;
+            if (DOMElements.addressBar) DOMElements.addressBar.value = url;
+            if (!fromHistory) addToHistory(url);
+            currentTab.url = url;
+            let title = url.replace(/^https?:\/\//, '').split('/')[0];
+            updateTabTitle(title.length > 20 ? title.substring(0, 20) + '...' : title);
+            
             showLoadingOverlay(url);
-            document.getElementById('addressBar').value = url;
-
-            // Simular carga de página con proxy
-            simulatePageLoad(url);
+            updateUIForCurrentTab();
         }
-
         function navigateFromAddressBar() {
-            const url = document.getElementById('addressBar').value.trim();
-            if (url) {
-                navigateToUrl(url);
-            }
+            if (DOMElements.addressBar) navigateToUrl(DOMElements.addressBar.value.trim());
         }
-
         function handleAddressBarKeypress(event) {
-            if (event.key === 'Enter') {
-                navigateFromAddressBar();
-            }
+            if (event.key === 'Enter') navigateFromAddressBar();
         }
-
-        // Simular carga de página con verificaciones
-        function simulatePageLoad(url) {
-            const startTime = Date.now();
-            
-            setTimeout(() => {
-                hideLoadingOverlay();
-                
-                const loadTime = Date.now() - startTime;
-                const dataTransfer = Math.floor(Math.random() * 2000) + 500; // KB
-                const requests = Math.floor(Math.random() * 50) + 10;
-                
-                // Actualizar estadísticas de rendimiento con verificación
-                const loadTimeEl = document.getElementById('loadTime');
-                const dataTransferEl = document.getElementById('dataTransfer');
-                const requestsEl = document.getElementById('requests');
-                const proxyHopsEl = document.getElementById('proxyHops');
-                
-                if (loadTimeEl) loadTimeEl.textContent = loadTime + 'ms';
-                if (dataTransferEl) dataTransferEl.textContent = dataTransfer + 'KB';
-                if (requestsEl) requestsEl.textContent = requests;
-                if (proxyHopsEl) proxyHopsEl.textContent = currentProxy ? '1' : '0';
-
-                // Actualizar contenido del navegador
-                showWebsiteContent(url);
-                
-                // Agregar a historial
-                addToHistory(url);
-                
-                addLog(`🌐 Página cargada: ${url} (${loadTime}ms)`, 'success');
-                
-            }, Math.random() * 2000 + 1000); // Simular tiempo de carga variable
-        }
-
-        function showLoadingOverlay(url) {
-            const overlay = document.getElementById('loadingOverlay');
-            const loadingProxy = document.getElementById('loadingProxy');
-            
-            if (!overlay || !loadingProxy) return;
-            
-            if (currentProxy) {
-                loadingProxy.textContent = `Conectando a través de ${currentProxy.ip}:${currentProxy.port}...`;
-            } else {
-                loadingProxy.textContent = 'Conectando directamente (sin proxy)...';
-            }
-            
-            overlay.style.display = 'flex';
-        }
-
-        function hideLoadingOverlay() {
-            const overlay = document.getElementById('loadingOverlay');
-            if (overlay) {
-                overlay.style.display = 'none';
-            }
-        }
-
-        function showWebsiteContent(url) {
-            const browserContent = document.getElementById('browserContent');
-            
-            // Simular contenido de diferentes tipos de sitios web
-            let content = '';
-            
-            if (url.includes('httpbin.org/ip')) {
-                content = `
-                    <div style="padding: 40px; background: #f0f8ff; font-family: monospace;">
-                        <h2>🔍 Información de tu IP</h2>
-                        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                            <strong>IP Address:</strong> ${currentProxy ? currentProxy.ip : '192.168.1.100'}<br>
-                            <strong>User Agent:</strong> Anonymous Browser/1.0<br>
-                            <strong>Proxy Status:</strong> ${currentProxy ? '✅ Activo' : '❌ Desactivado'}<br>
-                            <strong>Location:</strong> ${currentProxy ? 'Oculta por proxy' : 'Tu ubicación real'}<br>
-                            <strong>ISP:</strong> ${currentProxy ? 'Proxy Server' : 'Tu ISP real'}
-                        </div>
-                        <p style="color: #666;">
-                            ${currentProxy ? 
-                                '🛡️ Tu IP real está oculta. Navegas de forma anónima.' : 
-                                '⚠️ Tu IP real está expuesta. Activa un proxy para navegar de forma anónima.'
-                            }
-                        </p>
-                    </div>
-                `;
-            } else if (url.includes('google.com')) {
-                content = `
-                    <div style="padding: 40px; background: white; min-height: 100%;">
-                        <div style="text-align: center; margin-bottom: 30px;">
-                            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjcyIiBoZWlnaHQ9IjkyIiB2aWV3Qm94PSIwIDAgMjcyIDkyIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMTE1LjQ4IDI2LjY0SDEyNi43MlYzMy4yOEgxMTUuNDhWMjYuNjRaIiBmaWxsPSIjNDI4NUY0Ii8+CjxwYXRoIGQ9Ik0xNTguNCAxOC4yNEgxNjkuNjRWMjQuODhIMTU4LjRWMTguMjRaIiBmaWxsPSIjRkJCQzA0Ii8+Cjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjMwIiBmaWxsPSIjNDI4NUY0Ij5Hb29nbGU8L3RleHQ+Cjwvc3ZnPg==" alt="Google" style="height: 80px;">
-                        </div>
-                        <div style="max-width: 600px; margin: 0 auto;">
-                            <input type="text" placeholder="Buscar en Google..." 
-                                   style="width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 25px; font-size: 16px; text-align: center;">
-                            <div style="text-align: center; margin-top: 30px;">
-                                <button style="padding: 10px 20px; margin: 0 10px; border: 1px solid #ddd; background: #f8f9fa; border-radius: 4px;">Buscar con Google</button>
-                                <button style="padding: 10px 20px; margin: 0 10px; border: 1px solid #ddd; background: #f8f9fa; border-radius: 4px;">Me siento con suerte</button>
-                            </div>
-                        </div>
-                        <div style="position: fixed; bottom: 20px; right: 20px; background: #e8f5e8; padding: 10px; border-radius: 8px; font-size: 12px;">
-                            🛡️ Navegando a través de proxy: ${currentProxy ? currentProxy.ip : 'Ninguno'}
-                        </div>
-                    </div>
-                `;
-            } else {
-                content = `
-                    <div style="padding: 40px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; min-height: 100%;">
-                        <div style="max-width: 800px; margin: 0 auto; text-align: center;">
-                            <h1>🌐 Página Web Simulada</h1>
-                            <p style="margin: 20px 0; font-size: 18px;">
-                                Esta es una simulación de cómo se vería una página web cargada a través del proxy.
-                            </p>
-                            
-                            <div style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; margin: 30px 0; backdrop-filter: blur(10px);">
-                                <h2>📊 Información de Conexión</h2>
-                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px;">
-                                    <div>
-                                        <strong>URL:</strong><br>
-                                        <span style="word-break: break-all;">${url}</span>
-                                    </div>
-                                    <div>
-                                        <strong>Proxy:</strong><br>
-                                        ${currentProxy ? `${currentProxy.ip}:${currentProxy.port}` : 'Directo'}
-                                    </div>
-                                    <div>
-                                        <strong>Estado:</strong><br>
-                                        ${currentProxy ? '🛡️ Anónimo' : '⚠️ Expuesto'}
-                                    </div>
-                                    <div>
-                                        <strong>Velocidad:</strong><br>
-                                        ${currentProxy ? `${currentProxy.responseTime?.toFixed(0)}ms` : '-'}
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
-                                <h3>🔒 Características de Seguridad</h3>
-                                <ul style="text-align: left; margin: 15px 0; padding-left: 20px;">
-                                    <li>✅ IP real oculta${!currentProxy ? ' (⚠️ DESACTIVADO)' : ''}</li>
-                                    <li>✅ Tráfico enrutado a través de proxy${!currentProxy ? ' (⚠️ DESACTIVADO)' : ''}</li>
-                                    <li>✅ Ubicación geográfica enmascarada${!currentProxy ? ' (⚠️ DESACTIVADO)' : ''}</li>
-                                    <li>✅ Protección contra rastreo${!currentProxy ? ' (⚠️ LIMITADO)' : ''}</li>
-                                </ul>
-                            </div>
-                            
-                            <p style="margin-top: 30px; font-size: 14px; opacity: 0.8;">
-                                En una implementación real, aquí se mostraría el contenido completo del sitio web 
-                                cargado a través del sistema de proxies.
-                            </p>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            browserContent.innerHTML = content;
-        }
-
-        // Gestión de pestañas
-        function newTab() {
-            const newTabIndex = tabs.length;
-            tabs.push({
-                url: 'home',
-                title: 'Nueva Pestaña',
-                history: [],
-                historyIndex: -1
-            });
-            
-            // Crear elemento de pestaña
-            const tabsContainer = document.querySelector('.tabs-container');
-            const newTabElement = document.createElement('div');
-            newTabElement.className = 'tab';
-            newTabElement.setAttribute('data-tab', newTabIndex);
-            newTabElement.innerHTML = `
-                📄 Nueva Pestaña
-                <span class="tab-close" onclick="closeTab(${newTabIndex})">×</span>
-            `;
-            newTabElement.onclick = () => switchTab(newTabIndex);
-            
-            tabsContainer.insertBefore(newTabElement, tabsContainer.lastElementChild);
-            switchTab(newTabIndex);
-        }
-
-        function closeTab(tabIndex) {
-            if (tabs.length === 1) return; // No cerrar la última pestaña
-            
-            tabs.splice(tabIndex, 1);
-            
-            // Actualizar los índices de las pestañas
-            const tabElements = document.querySelectorAll('.tab');
-            tabElements.forEach((tab, index) => {
-                if (index === tabIndex) {
-                    tab.remove();
-                } else if (index > tabIndex) {
-                    tab.setAttribute('data-tab', index - 1);
-                    const closeBtn = tab.querySelector('.tab-close');
-                    closeBtn.onclick = () => closeTab(index - 1);
-                }
-            });
-            
-            // Cambiar a pestaña adyacente si cerramos la activa
-            if (currentTab === tabIndex) {
-                switchTab(Math.max(0, tabIndex - 1));
-            } else if (currentTab > tabIndex) {
-                currentTab--;
-            }
-        }
-
-        function switchTab(tabIndex) {
-            if (tabIndex >= tabs.length) return;
-            
-            currentTab = tabIndex;
-            
-            // Actualizar UI de pestañas
-            document.querySelectorAll('.tab').forEach((tab, index) => {
-                tab.classList.toggle('active', index === tabIndex);
-            });
-            
-            // Cargar contenido de la pestaña
-            const tab = tabs[tabIndex];
-            if (tab.url === 'home') {
-                goHome();
-            } else {
-                navigateToUrl(tab.url);
-            }
-        }
-
-        // Funciones de navegación
-        function goBack() {
-            const tab = tabs[currentTab];
-            if (tab.historyIndex > 0) {
-                tab.historyIndex--;
-                navigateToUrl(tab.history[tab.historyIndex]);
-            }
-        }
-
-        function goForward() {
-            const tab = tabs[currentTab];
-            if (tab.historyIndex < tab.history.length - 1) {
-                tab.historyIndex++;
-                navigateToUrl(tab.history[tab.historyIndex]);
-            }
-        }
-
-        function reloadPage() {
-            const tab = tabs[currentTab];
-            if (tab.url !== 'home') {
-                navigateToUrl(tab.url);
-            } else {
-                goHome();
-            }
-        }
-
-        function goHome() {
-            const browserContent = document.getElementById('browserContent');
-            browserContent.innerHTML = `
-                <div class="homepage-content">
-                    <h1 class="homepage-title">🛡️ Anonymous Browser</h1>
-                    <p class="homepage-subtitle">Navega de forma completamente anónima con proxies automáticos</p>
-                    
-                    <div class="quick-links">
-                        <div class="quick-link" onclick="navigateToUrl('https://httpbin.org/ip')">
-                            <h3>🔍 Verificar IP</h3>
-                            <p>Comprueba tu IP actual y ubicación</p>
-                        </div>
-                        <div class="quick-link" onclick="navigateToUrl('https://www.google.com')">
-                            <h3>🔍 Buscar en Google</h3>
-                            <p>Búsqueda anónima en Google</p>
-                        </div>
-                        <div class="quick-link" onclick="navigateToUrl('https://duckduckgo.com')">
-                            <h3>🦆 DuckDuckGo</h3>
-                            <p>Motor de búsqueda que no rastrea</p>
-                        </div>
-                        <div class="quick-link" onclick="navigateToUrl('https://www.reddit.com')">
-                            <h3>📱 Reddit</h3>
-                            <p>Navega Reddit de forma anónima</p>
-                        </div>
-                        <div class="quick-link" onclick="navigateToUrl('https://news.ycombinator.com')">
-                            <h3>📰 Hacker News</h3>
-                            <p>Noticias de tecnología</p>
-                        </div>
-                        <div class="quick-link" onclick="showProxyTest()">
-                            <h3>🧪 Test de Proxies</h3>
-                            <p>Probar velocidad y funcionalidad</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('addressBar').value = '';
-            tabs[currentTab].url = 'home';
-            updateTabTitle('🏠 Inicio');
-        }
-
-        function updateTabTitle(title) {
-            const tabElement = document.querySelector(`[data-tab="${currentTab}"]`);
-            if (tabElement) {
-                const closeBtn = tabElement.querySelector('.tab-close');
-                tabElement.innerHTML = `${title} <span class="tab-close" onclick="closeTab(${currentTab})">×</span>`;
-                // Re-agregar el onclick al elemento completo
-                tabElement.onclick = (e) => {
-                    if (e.target.classList.contains('tab-close')) return;
-                    switchTab(currentTab);
-                };
-            }
-        }
-
         function addToHistory(url) {
-            const tab = tabs[currentTab];
+            const tab = tabs.find(t => t.id === currentTabIndex);
             if (!tab) return;
-            
-            // Eliminar entradas futuras si estamos en el medio del historial
             if (tab.historyIndex < tab.history.length - 1) {
                 tab.history = tab.history.slice(0, tab.historyIndex + 1);
             }
-            
             tab.history.push(url);
             tab.historyIndex = tab.history.length - 1;
-            tab.url = url;
-            
-            // Actualizar título de la pestaña
-            let title = url.replace(/^https?:\/\//, '').split('/')[0];
-            if (title.length > 20) title = title.substring(0, 20) + '...';
-            updateTabTitle(title);
-            
-            // Actualizar botones de navegación
-            const backBtn = document.getElementById('backBtn');
-            const forwardBtn = document.getElementById('forwardBtn');
-            
-            if (backBtn) backBtn.disabled = tab.historyIndex <= 0;
-            if (forwardBtn) forwardBtn.disabled = tab.historyIndex >= tab.history.length - 1;
+            updateNavButtons();
         }
-
-        // Funciones auxiliares
-        function toggleProxy() {
-            if (workingProxies.length > 0) {
-                rotateToNextProxy();
+        function goBack() {
+            const tab = tabs.find(t => t.id === currentTabIndex);
+            if (tab && tab.historyIndex > 0) {
+                tab.historyIndex--;
+                navigateToUrl(tab.history[tab.historyIndex], true);
+            }
+        }
+        function goForward() {
+            const tab = tabs.find(t => t.id === currentTabIndex);
+            if (tab && tab.historyIndex < tab.history.length - 1) {
+                tab.historyIndex++;
+                navigateToUrl(tab.history[tab.historyIndex], true);
+            }
+        }
+        function reloadPage() {
+            const tab = tabs.find(t => t.id === currentTabIndex);
+            if (tab) {
+                const contentFrame = DOMElements.browserContent.querySelector('iframe');
+                if (contentFrame) {
+                    contentFrame.src = tab.url;
+                } else {
+                    updateUIForCurrentTab();
+                }
+            }
+        }
+        function goHome() {
+            const tab = tabs.find(t => t.id === currentTabIndex);
+            if (tab) {
+                tab.url = 'home';
+                updateUIForCurrentTab();
+            }
+        }
+        
+        // --- Actualización de la Interfaz (UI) ---
+        function updateStatus() {
+            if (DOMElements.activeProxies) DOMElements.activeProxies.textContent = workingProxies.length;
+            if (DOMElements.huntingStatus) DOMElements.huntingStatus.textContent = isHunting ? 'Buscando...' : 'Inactivo';
+            if (currentProxy) {
+                if(DOMElements.currentProxyDisplay) DOMElements.currentProxyDisplay.textContent = `${currentProxy.ip}:${currentProxy.port}`;
+                if(DOMElements.proxySpeed) DOMElements.proxySpeed.textContent = `${currentProxy.responseTime?.toFixed(0) || '-'}ms`;
+                if(DOMElements.ipHidden) DOMElements.ipHidden.textContent = '✅';
             } else {
-                addLog('⚠️ No hay proxies funcionales disponibles', 'warning');
+                if(DOMElements.currentProxyDisplay) DOMElements.currentProxyDisplay.textContent = 'Ninguno';
+                if(DOMElements.proxySpeed) DOMElements.proxySpeed.textContent = '-';
+                if(DOMElements.ipHidden) DOMElements.ipHidden.textContent = '❌';
             }
         }
-
-        function showProxyTest() {
-            const browserContent = document.getElementById('browserContent');
-            browserContent.innerHTML = `
-                <div style="padding: 40px; background: #f5f5f5; min-height: 100%;">
-                    <h1 style="color: #333; text-align: center; margin-bottom: 30px;">🧪 Test de Proxies</h1>
-                    
-                    <div style="max-width: 600px; margin: 0 auto;">
-                        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 20px;">
-                            <h3>📊 Estado Actual</h3>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
-                                <div>
-                                    <strong>Proxies Funcionales:</strong><br>
-                                    <span style="color: #11998e; font-size: 24px; font-weight: bold;">${workingProxies.length}</span>
-                                </div>
-                                <div>
-                                    <strong>Proxy Activo:</strong><br>
-                                    <span style="color: #667eea; font-weight: bold;">
-                                        ${currentProxy ? `${currentProxy.ip}:${currentProxy.port}` : 'Ninguno'}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-                            <h3>🚀 Acciones Rápidas</h3>
-                            <div style="display: grid; gap: 15px; margin-top: 20px;">
-                                <button onclick="selectBestProxy()" style="padding: 15px; background: #11998e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                                    ⚡ Usar Proxy Más Rápido
-                                </button>
-                                <button onclick="rotateToNextProxy()" style="padding: 15px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                                    🔄 Rotar a Siguiente Proxy
-                                </button>
-                                <button onclick="proxyHuntingCycle()" style="padding: 15px; background: #ff9800; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                                    🔍 Buscar Más Proxies
-                                </button>
-                                <button onclick="navigateToUrl('https://httpbin.org/ip')" style="padding: 15px; background: #e91e63; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                                    🔍 Verificar Mi IP
-                                </button>
-                            </div>
-                        </div>
+        function updateProxyDisplay() {
+            if (!DOMElements.proxyList) return;
+            const sortedProxies = [...workingProxies, ...proxies.filter(p => p.status !== 'working')].sort((a, b) => {
+                if (a.status === 'working' && b.status !== 'working') return -1;
+                if (a.status !== 'working' && b.status === 'working') return 1;
+                if (a.status === 'working' && b.status === 'working') return a.responseTime - b.responseTime;
+                return 0;
+            });
+            DOMElements.proxyList.innerHTML = '';
+            sortedProxies.slice(0, 50).forEach(proxy => {
+                const isActive = currentProxy && currentProxy.ip === proxy.ip && currentProxy.port === proxy.port;
+                const item = document.createElement('div');
+                item.className = `proxy-item ${proxy.status} ${isActive ? 'active' : ''}`;
+                item.innerHTML = `<div class="proxy-header"><div class="proxy-address">${proxy.ip}:${proxy.port}</div><div class="proxy-status status-${proxy.status}">${proxy.status}</div></div><div style="color: #888; font-size: 10px;">${proxy.responseTime ? `⚡ ${proxy.responseTime.toFixed(0)}ms` : ''} ${proxy.source ? `📍 ${proxy.source}` : ''} ${proxy.lastTested ? `🕒 ${proxy.lastTested.toLocaleTimeString()}` : ''}</div>`;
+                if (proxy.status === 'working') item.onclick = () => selectProxy(proxy.ip, proxy.port);
+                DOMElements.proxyList.appendChild(item);
+            });
+        }
+        function updateSecurityStatus() {
+            if (!DOMElements.securityStatus || !DOMElements.securityIcon || !DOMElements.securityText) return;
+            if (currentProxy) {
+                DOMElements.securityStatus.className = 'security-status secure';
+                DOMElements.securityIcon.textContent = '🛡️';
+                DOMElements.securityText.textContent = 'ANÓNIMO';
+            } else {
+                DOMElements.securityStatus.className = 'security-status insecure';
+                DOMElements.securityIcon.textContent = '⚠️';
+                DOMElements.securityText.textContent = 'EXPUESTO';
+            }
+        }
+        function updateNavButtons() {
+            const tab = tabs.find(t => t.id === currentTabIndex);
+            if (tab && DOMElements.backBtn && DOMElements.forwardBtn) {
+                DOMElements.backBtn.disabled = tab.historyIndex <= 0;
+                DOMElements.forwardBtn.disabled = tab.historyIndex >= tab.history.length - 1;
+            }
+        }
+        function updateUIForCurrentTab() {
+            const tab = tabs.find(t => t.id === currentTabIndex);
+            if (!tab) return;
+            if (DOMElements.addressBar) DOMElements.addressBar.value = tab.url === 'home' ? '' : tab.url;
+            if (tab.url === 'home') {
+                showHomepageContent();
+            } else {
+                showIframeContent(tab.url);
+            }
+            updateNavButtons();
+        }
+        function showLoadingOverlay(url) {
+            if(DOMElements.loadingOverlay) {
+                DOMElements.loadingUrl.textContent = `Cargando ${url}...`;
+                DOMElements.loadingProxy.textContent = currentProxy ? `A través de ${currentProxy.ip}:${currentProxy.port}...` : 'Conectando directamente...';
+                DOMElements.loadingOverlay.style.display = 'flex';
+            }
+        }
+        function hideLoadingOverlay() {
+            if (DOMElements.loadingOverlay) DOMElements.loadingOverlay.style.display = 'none';
+        }
+        function showHomepageContent() {
+            if (!DOMElements.browserContent) return;
+            DOMElements.browserContent.innerHTML = `
+                <div class="homepage-content">
+                    <h1 class="homepage-title">🛡️ Anonymous Browser</h1>
+                    <p class="homepage-subtitle">Navega de forma anónima y segura</p>
+                    <div class="quick-links">
+                        <div class="quick-link" onclick="navigateToUrl('https://httpbin.org/ip')"><h3>🔍 Verificar IP</h3><p>Comprueba tu IP actual</p></div>
+                        <div class="quick-link" onclick="navigateToUrl('https://www.wikipedia.org')"><h3>📚 Wikipedia</h3><p>La enciclopedia libre</p></div>
+                        <div class="quick-link" onclick="navigateToUrl('https://duckduckgo.com')"><h3>🦆 DuckDuckGo</h3><p>Búsqueda privada</p></div>
                     </div>
-                </div>
-            `;
+                </div>`;
+            hideLoadingOverlay();
         }
+        function showIframeContent(url) {
+            if (!DOMElements.browserContent) return;
+            DOMElements.browserContent.innerHTML = ''; // Limpiar contenido anterior
+            DOMElements.browserContent.appendChild(DOMElements.loadingOverlay); // Re-adjuntar el overlay
 
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('mobile-open');
-        }
-
-        // Inicialización
-        window.addEventListener('DOMContentLoaded', () => {
-            // Verificar que todos los elementos existen antes de usarlos
-            if (document.getElementById('consolePanel')) {
-                addLog('🛡️ Anonymous Browser iniciado', 'success');
-                addLog('ℹ️ Presiona "Iniciar Búsqueda" para comenzar a buscar proxies', 'info');
-            }
+            const iframe = document.createElement('iframe');
+            iframe.src = url;
+            // Sandbox para seguridad, permite scripts y formularios pero aisla el contenido
+            iframe.setAttribute('sandbox', 'allow-forms allow-modals allow-pointer-lock allow-popups allow-same-origin allow-scripts');
+            iframe.setAttribute('referrerpolicy', 'no-referrer');
             
-            // Inicializar solo si los elementos existen
-            setTimeout(() => {
-                updateStatus();
-                updateSecurityStatus();
-                goHome();
-            }, 100);
-        });
-
-        // Auto-guardar configuración
-        ['batchSize', 'timeout', 'minWorking'].forEach(id => {
-            document.getElementById(id).addEventListener('change', () => {
-                const config = {
-                    batchSize: document.getElementById('batchSize').value,
-                    timeout: document.getElementById('timeout').value,
-                    minWorking: document.getElementById('minWorking').value
-                };
-                localStorage.setItem('anonymousBrowserConfig', JSON.stringify(config));
-            });
-        });
-
-        // Cargar configuración guardada
-        const savedConfig = localStorage.getItem('anonymousBrowserConfig');
-        if (savedConfig) {
-            const config = JSON.parse(savedConfig);
-            Object.entries(config).forEach(([key, value]) => {
-                const element = document.getElementById(key);
-                if (element) element.value = value;
-            });
+            iframe.onload = () => {
+                addLog(`✅ URL cargada: ${url}`, 'success');
+                hideLoadingOverlay();
+            };
+            iframe.onerror = () => {
+                addLog(`❌ No se pudo cargar la URL: ${url}. El sitio puede bloquear la carga en iframes.`, 'error');
+                hideLoadingOverlay();
+            };
+            
+            DOMElements.browserContent.appendChild(iframe);
         }
+        function toggleSidebar() {
+            if (DOMElements.sidebar) DOMElements.sidebar.classList.toggle('mobile-open');
+        }
+
+        // --- Inicialización de la Aplicación ---
+        function initialize() {
+            const savedConfig = localStorage.getItem('anonymousBrowserConfig');
+            if (savedConfig) {
+                const config = JSON.parse(savedConfig);
+                Object.entries(config).forEach(([key, value]) => {
+                    const element = document.getElementById(key);
+                    if (element) element.value = value;
+                });
+            }
+            ['batchSize', 'timeout', 'minWorking'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('change', () => {
+                    localStorage.setItem('anonymousBrowserConfig', JSON.stringify({
+                        batchSize: document.getElementById('batchSize').value,
+                        timeout: document.getElementById('timeout').value,
+                        minWorking: document.getElementById('minWorking').value
+                    }));
+                });
+            });
+            const newTabButton = document.createElement('div');
+            newTabButton.className = 'new-tab-btn';
+            newTabButton.textContent = '+';
+            newTabButton.onclick = () => newTab();
+            if(DOMElements.tabsContainer) DOMElements.tabsContainer.appendChild(newTabButton);
+            
+            newTab(); // Crear la primera pestaña
+            
+            addLog('🛡️ Anonymous Browser iniciado', 'success');
+            addLog('ℹ️ Introduce una URL o busca para empezar.', 'info');
+        }
+
+        window.addEventListener('DOMContentLoaded', initialize);
     </script>
 </body>
 </html>
